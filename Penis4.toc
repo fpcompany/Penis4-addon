@@ -1,0 +1,27 @@
+## Interface: 110100
+## Title: |cffFF0000P|r|cffFF7F00E|r|cffFFFF00N|r|cff00FF00I|r|cff3399FFS|r 4
+## Notes: If Penis 3 is so great, why won't they~ SHUT UP
+## Version: 4.0a
+## Dependencies: Hekili
+## IconTexture: Interface\AddOns\Penis4\penis
+logger.lua
+helpers.lua
+character.lua
+combinations.lua
+macrolegacy.lua
+macrosystem.lua
+spells.lua
+auras.lua
+grouptracker.lua
+Classes\Common.lua
+Classes\Mage\mage.lua
+Classes\Mage\fire.lua
+Classes\Mage\frost.lua
+Classes\Druid\druid.lua
+Classes\Druid\balance.lua
+Classes\Druid\guardian.lua
+Classes\DemonHunter\demonhunter.lua
+Classes\DemonHunter\havoc.lua
+Classes\Shaman\shaman.lua
+Classes\Shaman\resto.lua
+boot.lua
