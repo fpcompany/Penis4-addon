@@ -25,7 +25,7 @@ Guardian.Buffs = {
 }
 
 Guardian.priority = function()
-    local DESIRED_IRON_FUR_STACKS = 13
+    local DESIRED_IRON_FUR_STACKS = 7
     local IRON_FUR_COST = 40
     local FR_COST = 10
 
