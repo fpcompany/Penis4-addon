@@ -43,6 +43,9 @@ Resto.Spells = {
     EarthenWallTotem = 198838, -- 54 sec cooldown
     TotemicRecall = 108285, -- last totem cooldown reset, 2 min cooldown
     Wellspring = 197995, -- frontal cone heal
+    HealingTideTotem = 108280, -- aoe heal every 1.9 sec, 2.2 min cooldown
+    BulwarkTotem = 108270, -- shield self, 2.9 min cooldown
+    Spiritwalker = 79206, -- cast when moving for 15 seconds, 1.5 min cooldown
 }
 
 Resto.Buffs = {
@@ -57,10 +60,21 @@ Resto.Buffs = {
 }
 
 Resto.priority = function()
+    local hsTotemCharges, hsTotemMaxCharges = P4.GetSpellCharges(Resto.Spells.HealingStreamTotem)
+    local nextHsTotem = P4.GetTimeUntilNextCharge(Resto.Spells.HealingStreamTotem)
+
     -- Target Select Logic
     local mostDamagedUnit, mduHealth = P4.GroupTracker:Get()
     local lowHealthCount = P4.GroupTracker:CountBelowPercent(80)
     if (mduHealth > 80) then -- Party is healthy, skip healing rotation
+
+        if mduHealth <= 95 then -- Use Healing Stream Totem on cooldown for minor injuries
+            if hsTotemCharges == 2 or (hsTotemCharges == 1 and nextHsTotem <= 18) then
+                P4.log("Healing Stream totem (do not overcap charges)", P4.SUCCESS)
+                return Resto.Spells.HealingStreamTotem
+            end
+        end
+
         if UnitExists("focus") then
             return P4.MacroSystem:GetMacroIDForMacro("FocusClear")
         end
@@ -71,10 +85,11 @@ Resto.priority = function()
     end
 
     -- Healing Logic
+    local myHealth = unitHealthPercentage("player")
     local targetHealth = unitHealthPercentage("focus")
-    local hsTotemCharges, hsTotemMaxCharges = P4.GetSpellCharges(Resto.Spells.HealingStreamTotem)
     local cbtTotemCharges, cbtTotemMaxCharges = P4.GetSpellCharges(Resto.Spells.CloudburstTotem)
     local cbtTotemReady = P4.IsSpellReady(Resto.Spells.CloudburstTotem)
+    local htTotemReady = P4.IsSpellReady(Resto.Spells.HealingTideTotem)
     local hasTidalWaves = P4.selfBuff(Resto.Buffs.TidalWaves)
     local hasHighTide = P4.selfBuff(Resto.Buffs.HighTide)
     local hasDownpour = P4.selfBuff(Resto.Buffs.Downpour)
@@ -87,25 +102,31 @@ Resto.priority = function()
     local earthenWallTotemReady = P4.IsSpellReady(Resto.Spells.EarthenWallTotem)
     local masterOfTheElementsLearned = IsPlayerSpell(462375)
     local ancestralReachLearned = IsPlayerSpell(382732)
+    local spiritwalkerReady = P4.IsSpellReady(Resto.Spells.Spiritwalker)
 
-    -- Use Healing Stream Totem on cooldown;
-    if hsTotemCharges == 2 then
-        return Resto.Spells.HealingStreamTotem
+    -- Need to disable Hekili's Spiritwalker's grace recommendation
+    if IsPlayerMoving() and spiritwalkerReady then
+        P4.log("Spiritwalker's grace (moving)", P4.SUCCESS)
+        return Resto.Spells.Spiritwalker
+    end
+
+    -- Protect self if party is in a pinch
+    if (myHealth <= 70 and lowHealthCount >= 3) or
+        (myHealth <= 70 and lowHealthCount >= 2 and mduHealth <= 50) then
+            P4.log("Bulwark totem (save self)", P4.SUCCESS)
+            return Resto.Spells.BulwarkTotem
     end
 
     -- Use CBT totem on cooldown
     if cbtTotemReady and cbtTotemCharges == 2 then
+        P4.log("CBT totem (2 charges)", P4.SUCCESS)
         return Resto.Spells.CloudburstTotem
-    end
-
-    -- Use Wellspring after AOE
-    if wellspringReady and lowHealthCount > 4 then
-        return Resto.Spells.Wellspring
     end
 
     -- Generate Master of the elements with incast lava burst (only if target is attackable)
     if mduHealth >= 70 and masterOfTheElementsLearned and not hasMasterOfTheElements and hasLavaSurge 
         and UnitExists("target") and UnitCanAttack("player", "target")then
+        P4.log("Lava Burst (consume lava surge)", P4.SUCCESS)
         return Resto.Spells.LavaBurst
     end
 
@@ -117,19 +138,32 @@ Resto.priority = function()
 
     -- Unleash life to buff heals
     if unleashLifeReady then
+        P4.log("Unleash Life (on cooldown)", P4.SUCCESS)
         return Resto.Spells.UnleashLife
     end
 
-    -- Consume Downpour
-    if hasDownpour and lowHealthCount >= 3 then
+    -- Consume Downpour (BUGGY)
+    --[[if hasDownpour and lowHealthCount >= 3 then
         P4.log("Surging Totem (Consume Downpour)", P4.SUCCESS)
         return Resto.Spells.SurgingTotem
-    end
+    end]]
 
-    -- Chain Heal if High Tide procced // TODO: if 3 or more people are injured
+    -- Chain Heal if High Tide procced
     if hasHighTide and lowHealthCount >= 3 then
         P4.log("Chain Heal (has High Tide and 3 people injired)", P4.SUCCESS)
         return Resto.Spells.ChainHeal
+    end
+    
+    -- Use Wellspring after AOE
+    if wellspringReady and lowHealthCount >= 4 then
+        P4.log("Wellspring (4 players are hurt)", P4.SUCCESS)
+        return Resto.Spells.Wellspring
+    end
+
+    -- Use Healing Tide totem after AOE
+    if htTotemReady and lowHealthCount >= 4 then
+        P4.log("Healing Tide Totem (4 players are hurt)", P4.SUCCESS)
+        return Resto.Spells.HealingTideTotem
     end
 
     -- Buffed Healing Surge
@@ -161,7 +195,7 @@ Resto.priority = function()
         return Resto.Spells.ChainHeal
     end
 
-    if mduHealth >= 70 then 
+    if mduHealth >= 70 and lowHealthCount <= 2 then 
         return Resto.Spells.HealingWave
     else
         return Resto.Spells.HealingSurge

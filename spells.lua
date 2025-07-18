@@ -90,3 +90,18 @@ function P4.GetSpellCharges(id)
     end
     return 0, 0
 end
+
+function P4.GetTimeUntilNextCharge(spellID)
+    local chargesInfo = C_Spell.GetSpellCharges(spellID)
+    if not chargesInfo then return 0 end
+    
+    if chargesInfo.currentCharges >= chargesInfo.maxCharges then
+        return 0 -- charges are full
+    end
+    
+    local rechargeEnd = chargesInfo.cooldownStartTime + (chargesInfo.cooldownDuration / chargesInfo.chargeModRate)
+    local timeLeft = rechargeEnd - GetTime()
+    if timeLeft < 0 then timeLeft = 0 end
+    
+    return timeLeft
+end

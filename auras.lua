@@ -14,6 +14,18 @@ P4.Debuff = {
     Incapacitated = "Incapacitated",
 }
 
+--TODO: add more bleeds here
+local bleeds = {
+    [240443] = "Burst",
+    [1079] = "Rip",
+}
+
+--[[P4.IAm("Stunned"), P4.IAm("Feared"), Incapacitated, etc]]
+function P4.IAm(status)
+    local loc = C_LossOfControl.GetActiveLossOfControlData(1)
+    return loc and loc.displayText == status
+end
+
 function P4.CanDispel(...)
     local target = "player"
     local debuffTypes = {...}  -- Capture all passed debuff types in a table
