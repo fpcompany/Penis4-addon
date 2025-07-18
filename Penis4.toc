@@ -24,4 +24,6 @@ Classes\DemonHunter\demonhunter.lua
 Classes\DemonHunter\havoc.lua
 Classes\Shaman\shaman.lua
 Classes\Shaman\resto.lua
+Classes\Monk\monk.lua
+Classes\Monk\brewmaster.lua
 boot.lua
