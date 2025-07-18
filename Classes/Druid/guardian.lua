@@ -43,8 +43,12 @@ Guardian.priority = function()
         return Guardian.Spells.RemoveCorruption
     end
 
-    if (ironFurStacks or 0) < DESIRED_IRON_FUR_STACKS and P4.IsSpellReady(Guardian.Spells.Ironfur) and rage >= IRON_FUR_COST then -- Iron fur
-        --P4.log("Iron Fur")
+    if (ironFurStacks or 0) < DESIRED_IRON_FUR_STACKS and P4.IsSpellReady(Guardian.Spells.Ironfur) and rage >= (IRON_FUR_COST + FR_COST) then -- Iron fur
+        --P4.log("Defensive Iron Fur")
+        return Guardian.Spells.Ironfur
+    end
+    if rage > 90 and P4.IsSpellReady(Guardian.Spells.Ironfur) then
+        --P4.log("Dumping Iron Fur")
         return Guardian.Spells.Ironfur
     end
 
