@@ -38,7 +38,7 @@ Resto.Spells = {
     ChainHeal = 1064,
     SurgingTotem = 444995,
     LavaBurst = 51505,
-    UnleashLife = 73685,
+    UnleashLife = 73685, -- next healing spell buffed
     CloudburstTotem = 157153, -- 2 charges, 39 sec cooldown
     EarthenWallTotem = 198838, -- 54 sec cooldown
     TotemicRecall = 108285, -- last totem cooldown reset, 2 min cooldown
@@ -69,7 +69,7 @@ Resto.priority = function()
     if (mduHealth > 80) then -- Party is healthy, skip healing rotation
 
         if mduHealth <= 95 then -- Use Healing Stream Totem on cooldown for minor injuries
-            if hsTotemCharges == 2 or (hsTotemCharges == 1 and nextHsTotem <= 18) then
+            if not IsPlayerSpell(157153) and (hsTotemCharges == 2 or (hsTotemCharges == 1 and nextHsTotem <= 18)) then
                 P4.log("Healing Stream totem (do not overcap charges)", P4.SUCCESS)
                 return Resto.Spells.HealingStreamTotem
             end
@@ -111,8 +111,9 @@ Resto.priority = function()
     end
 
     -- Protect self if party is in a pinch
-    if (myHealth <= 70 and lowHealthCount >= 3) or
-        (myHealth <= 70 and lowHealthCount >= 2 and mduHealth <= 50) then
+    if P4.IsSpellReady(Resto.Spells.BulwarkTotem) and
+    ((myHealth <= 70 and lowHealthCount >= 3) or
+        (myHealth <= 70 and lowHealthCount >= 2 and mduHealth <= 50)) then
             P4.log("Bulwark totem (save self)", P4.SUCCESS)
             return Resto.Spells.BulwarkTotem
     end
