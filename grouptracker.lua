@@ -29,8 +29,12 @@ local function UpdateUnitHealth(unit)
     if UnitExists(unit) and UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and UnitIsFriend("player", unit) then
         local hp = UnitHealth(unit)
         local maxHp = UnitHealthMax(unit)
+        local absorb = UnitGetTotalHealAbsorbs(unit) or 0
+
         if maxHp > 0 then
-            GT.healthData[unit] = hp / maxHp
+            -- Cap effective HP at maxHP to avoid negative values
+            local effectiveHP = math.max(hp - absorb, 0)
+            GT.healthData[unit] = effectiveHP / maxHp
         else
             GT.healthData[unit] = 1
         end

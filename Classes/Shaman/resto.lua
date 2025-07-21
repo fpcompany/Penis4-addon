@@ -23,6 +23,15 @@ local function unitHealthPercentage(unit)
     return (current / max) * 100
 end
 
+local function unitManaPercentage(unit)
+    local current = UnitPower("player", 0)
+    local max = UnitPowerMax("player", 0)
+    if max == 0 then
+        return 0
+    end
+    return (current / max) * 100
+end
+
 local function targetIsTank()
     local role = UnitGroupRolesAssigned("focus")
     return role == "TANK"
@@ -60,10 +69,25 @@ RSham.Buffs = {
     LavaSurge = 77762, -- Free Lava Burst
 }
 
+local function IsItemReady(itemID)
+    local start, duration, enable = GetItemCooldown(itemID)
+    return enable == true and (start == 0 or (start + duration - GetTime() <= 0))
+end
+
 RSham.priority = function()
     local hsTotemCharges, hsTotemMaxCharges = P4.GetSpellCharges(RSham.Spells.HealingStreamTotem)
     local nextHsTotem = P4.GetTimeUntilNextCharge(RSham.Spells.HealingStreamTotem)
     local purifySpiritReady = P4.IsSpellReady(RSham.Spells.PurifySpirit)
+    local myHealth = unitHealthPercentage("player")
+    local myMana = unitManaPercentage("player")
+
+    if myHealth <= 50 and IsItemReady(211879) then -- 50% hp
+        return P4.MacroSystem:GetMacroIDForMacro("HealingPotion")
+    end
+
+    if myMana <= 10 and IsItemReady(212240) then -- 10% mana
+        return P4.MacroSystem:GetMacroIDForMacro("ManaPotion")
+    end
 
     -- Target Select Logic
     local mostDamagedUnit, mduHealth = P4.GroupTracker:Get()
@@ -107,7 +131,7 @@ RSham.priority = function()
     end
 
     -- Healing Logic
-    local myHealth = unitHealthPercentage("player")
+
     local targetHealth = unitHealthPercentage("focus")
     local cbtTotemCharges, cbtTotemMaxCharges = P4.GetSpellCharges(RSham.Spells.CloudburstTotem)
     local cbtTotemReady = P4.IsSpellReady(RSham.Spells.CloudburstTotem)

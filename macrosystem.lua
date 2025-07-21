@@ -53,6 +53,10 @@ function MacroSystem:InitializeFocusMacros()
     defineMacro("FocusPlayer", "/focus [target=player]")
     unitToMacro["player"] = "FocusPlayer"
 
+    -- Mana & Healing Potions
+    defineMacro("ManaPotion", "/use Algari Mana Potion")
+    defineMacro("HealingPotion", "/use Algari Healing Potion")
+
     -- Party units
     for i = 1, 4 do
         local unit = "party" .. i
