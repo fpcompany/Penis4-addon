@@ -49,7 +49,6 @@ local update = function(indicator, source)
     -- override hekili's spell and keybind if got priority cast
     if prio and prio > 0 then 
         spell = prio
-         P4.log("PRIO = " .. prio, P4.SUCCESS)
         local prio_spell_key = Hekili.Class.abilities[prio].key
         local info = Hekili.KeybindInfo[prio_spell_key]
 

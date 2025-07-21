@@ -77,18 +77,31 @@ Rdruid.Buffs = {
 
 Rdruid.priority = function()
     local groveGuardiansCharges, groveGuardiansMaxCharges = P4.GetSpellCharges(Rdruid.Spells.GroveGuardians)
+    local naturesCureReady = P4.IsSpellReady(Rdruid.Spells.NaturesCure)
 
     -- Target Select Logic
     local mostDamagedUnit, mduHealth = P4.GroupTracker:Get()
     local lowHealthCount = P4.GroupTracker:CountBelowPercent(70)
-    if (mduHealth > 90) then -- Party is healthy, skip healing rotation
+    local debuffedUnit = P4.GroupTracker:GetUnitWithDebuff(P4.Debuff.Magic, P4.Debuff.Curse, P4.Debuff.Poison)
+    if (mduHealth > 90 and (not naturesCureReady or not debuffedUnit)) then -- Party is healthy, skip healing rotation
         if UnitExists("focus") then
             return P4.MacroSystem:GetMacroIDForMacro("FocusClear")
         end
         return nil
     end
-    if not UnitExists("focus") or not UnitIsUnit("focus", mostDamagedUnit) then
-        return P4.MacroSystem:GetMacroIDForUnit(mostDamagedUnit)
+    if not UnitExists("focus") or (mostDamagedUnit and not UnitIsUnit("focus", mostDamagedUnit)) or (debuffedUnit and not UnitIsUnit("focus", debuffedUnit)) then
+        if debuffedUnit and naturesCureReady then
+            return P4.MacroSystem:GetMacroIDForUnit(debuffedUnit)
+        end
+        if mduHealth <= 80 then
+            return P4.MacroSystem:GetMacroIDForUnit(mostDamagedUnit)
+        end
+        return nil
+    end
+
+    -- Dispel the debuffed unit
+    if naturesCureReady and debuffedUnit and UnitIsUnit("focus", debuffedUnit) then
+        return Rdruid.Spells.NaturesCure
     end
 
     -- Healing Logic
@@ -295,6 +308,5 @@ Rdruid.priority = function()
         return Rdruid.Spells.HealingSurge
     end
     ]]
-    P4.log("End", P4.SUCCESS)
     return nil
 end
