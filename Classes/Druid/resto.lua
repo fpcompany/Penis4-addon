@@ -79,6 +79,10 @@ Rdruid.priority = function()
     local groveGuardiansCharges, groveGuardiansMaxCharges = P4.GetSpellCharges(Rdruid.Spells.GroveGuardians)
     local naturesCureReady = P4.IsSpellReady(Rdruid.Spells.NaturesCure)
 
+    if not P4.selfBuff(Rdruid.Buffs.Eflorescence) and InCombatLockdown() then
+        return Rdruid.Spells.Eflorescence
+    end
+
     -- Target Select Logic
     local mostDamagedUnit, mduHealth = P4.GroupTracker:Get()
     local lowHealthCount = P4.GroupTracker:CountBelowPercent(70)
