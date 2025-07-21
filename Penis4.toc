@@ -21,6 +21,7 @@ Classes\Mage\frost.lua
 Classes\Druid\druid.lua
 Classes\Druid\balance.lua
 Classes\Druid\guardian.lua
+Classes\Druid\resto.lua
 Classes\DemonHunter\demonhunter.lua
 Classes\DemonHunter\havoc.lua
 Classes\Shaman\shaman.lua
