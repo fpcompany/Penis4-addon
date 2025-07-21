@@ -26,7 +26,7 @@ local function UpdateGroupUnits()
 end
 
 local function UpdateUnitHealth(unit)
-    if UnitExists(unit) and UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) then
+    if UnitExists(unit) and UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and UnitIsFriend("player", unit) then
         local hp = UnitHealth(unit)
         local maxHp = UnitHealthMax(unit)
         if maxHp > 0 then
@@ -44,7 +44,7 @@ function GT:UpdateMostDamaged()
     local lowestHP = 1.1
 
     for unit, hp in pairs(self.healthData) do
-        if hp < lowestHP and (unit == "player" or UnitInRange(unit)) then
+        if hp < lowestHP and UnitIsFriend("player", unit) and (unit == "player" or UnitInRange(unit)) then
             lowestHP = hp
             lowestUnit = unit
         end
@@ -97,7 +97,7 @@ function GT:CountBelowPercent(percent)
     local count = 0
     for _, unit in ipairs(self.units) do
         local hp = self.healthData[unit]
-        if hp and hp * 100 < percent then
+        if hp and hp * 100 < percent and UnitIsFriend("player", unit) then
             count = count + 1
         end
     end
@@ -107,7 +107,7 @@ end
 function GT:GetUnitWithDebuff(...)
     local debuffTypes = {...}
     for _, unit in ipairs(self.units) do
-        if P4.CanDispel(unit, unpack(debuffTypes)) then
+        if UnitIsFriend("player", unit) and P4.CanDispel(unit, unpack(debuffTypes)) then
             return unit
         end
     end

@@ -147,12 +147,9 @@ local function P4Setup_Combinations()
     P4.log("Loading " .. specName .. " " .. classNameLocalized, P4.SUCCESS)
     
     --Run setup function, if implemented
-    print("CSETUP?")
     if c and c.specs[specID] and c.specs[specID].Setup then
-        print("CSETUP!")
         c.specs[specID].Setup()
     end
-    print("CSETUP END")
 
     P4.spellColorTable = {}
     P4.keybindTable = {}
