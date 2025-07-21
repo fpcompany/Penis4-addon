@@ -44,7 +44,7 @@ Brewmaster.priority = function()
     local _, purifiedChiTimer, purifiedChiStacks = P4.selfBuff(Brewmaster.Buffs.PurifiedChi)
 
 
-    if (P4.CanDispel(P4.Debuff.Disease) or P4.CanDispel(P4.Debuff.Poison)) and P4.IsSpellReady(Brewmaster.Spells.Detox) then
+    if (P4.CanDispel("player", P4.Debuff.Disease) or P4.CanDispel("player", P4.Debuff.Poison)) and P4.IsSpellReady(Brewmaster.Spells.Detox) then
         return Brewmaster.Spells.Detox
     end
 

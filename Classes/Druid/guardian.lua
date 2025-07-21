@@ -39,7 +39,7 @@ Guardian.priority = function()
     local hasSurvivalInstincts = P4.selfBuff(Guardian.Buffs.SurvivalInstincts)
 
 
-    if (P4.CanDispel(P4.Debuff.Curse) or P4.CanDispel(P4.Debuff.Poison)) and P4.IsSpellReady(Guardian.Spells.RemoveCorruption) then
+    if (P4.CanDispel("player", P4.Debuff.Curse) or P4.CanDispel("player", P4.Debuff.Poison)) and P4.IsSpellReady(Guardian.Spells.RemoveCorruption) then
         return Guardian.Spells.RemoveCorruption
     end
 

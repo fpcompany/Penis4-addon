@@ -49,6 +49,7 @@ local update = function(indicator, source)
     -- override hekili's spell and keybind if got priority cast
     if prio and prio > 0 then 
         spell = prio
+         P4.log("PRIO = " .. prio, P4.SUCCESS)
         local prio_spell_key = Hekili.Class.abilities[prio].key
         local info = Hekili.KeybindInfo[prio_spell_key]
 
@@ -144,6 +145,14 @@ local function P4Setup_Combinations()
     local c = P4.classTable and P4.classTable[classID] or nil
     P4.class = c and c.specs[specID] or nil
     P4.log("Loading " .. specName .. " " .. classNameLocalized, P4.SUCCESS)
+    
+    --Run setup function, if implemented
+    print("CSETUP?")
+    if c and c.specs[specID] and c.specs[specID].Setup then
+        print("CSETUP!")
+        c.specs[specID].Setup()
+    end
+    print("CSETUP END")
 
     P4.spellColorTable = {}
     P4.keybindTable = {}

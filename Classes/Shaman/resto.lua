@@ -63,7 +63,7 @@ RSham.Buffs = {
 RSham.priority = function()
     local hsTotemCharges, hsTotemMaxCharges = P4.GetSpellCharges(RSham.Spells.HealingStreamTotem)
     local nextHsTotem = P4.GetTimeUntilNextCharge(RSham.Spells.HealingStreamTotem)
-    local purifySpiritReady = P4.IsSpellReady(RSHam.Spells.PurifySpirit)
+    local purifySpiritReady = P4.IsSpellReady(RSham.Spells.PurifySpirit)
 
     -- Target Select Logic
     local mostDamagedUnit, mduHealth = P4.GroupTracker:Get()
@@ -80,20 +80,29 @@ RSham.priority = function()
         end
 
         if UnitExists("focus") then
+            P4.log("Defocus", P4.SUCCESS)
             return P4.MacroSystem:GetMacroIDForMacro("FocusClear")
         end
         return nil
     end
-    if not UnitExists("focus") or not UnitIsUnit("focus", mostDamagedUnit) then
-        if mduHealth <= 80 then
-            return P4.MacroSystem:GetMacroIDForUnit(mostDamagedUnit)
+    -- If no focused, or focus is not MDU or (focus is not Debuffed)
+    if not UnitExists("focus") or 
+        not UnitIsUnit("focus", mostDamagedUnit) or 
+        (debuffedUnit and not UnitIsUnit("focus", debuffedUnit)) then
         if debuffedUnit and purifySpiritReady then
+            P4.log("Focus DEBUFFED = " .. tostring(debuffedUnit) .. "Focus=debuffed? " .. tostring(UnitIsUnit("focus", debuffedUnit)), P4.SUCCESS)
             return P4.MacroSystem:GetMacroIDForUnit(debuffedUnit)
+        end
+        if mduHealth <= 80 then
+            P4.log("Focus MDU", P4.SUCCESS)
+            return P4.MacroSystem:GetMacroIDForUnit(mostDamagedUnit)
+        end
         return nil
     end
 
     -- Dispel the debuffed unit
-    if debuffedUnit then
+    if debuffedUnit and UnitIsUnit("focus", debuffedUnit) then
+        P4.log("Purify Spirit on " .. tostring(debuffedUnit), P4.SUCCESS)
         return RSham.Spells.PurifySpirit
     end
 
@@ -219,5 +228,20 @@ RSham.priority = function()
 end
 
 RSham.Setup = function ()
-    print("RSham setup")
+    -- Patch Hekili to add missing spell
+    Hekili:GetSpecialization(264):RegisterAbilities({
+        purify_spirit = {
+            id = 77130,
+            cast = 0,
+            cooldown = 8,
+            gcd = "spell",
+            spend = 0.07,
+            spendType = "mana",
+            startsCombat = false,
+            texture = 136043,
+
+            handler = function()
+            end
+        },
+    })
 end
