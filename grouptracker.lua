@@ -104,6 +104,17 @@ function GT:CountBelowPercent(percent)
     return count
 end
 
+function GT:GetUnitWithDebuff(...)
+    local debuffTypes = {...}
+    for _, unit in ipairs(self.units) do
+        if P4.CanDispel(unit, unpack(debuffTypes)) then
+            return unit
+        end
+    end
+    return nil
+end
+
+
 --function ideas:
 --GetTank
 --IsDead

@@ -1,5 +1,7 @@
 _, P4 = ...
 
+local LibDispel = LibStub("LibDispel-1.0")
+
 P4.Debuff = {
     Magic = "Magic",
     Curse = "Curse",
@@ -14,11 +16,18 @@ P4.Debuff = {
     Incapacitated = "Incapacitated",
 }
 
---TODO: add more bleeds here
-local bleeds = {
-    [240443] = "Burst",
-    [1079] = "Rip",
-}
+local bleedList = LibDispel:GetBleedList()
+
+function P4.TestDispel()
+    local b = LibDispel:GetBleedList()
+    local d = LibDispel:GetMyDispelTypes()
+    local i = LibDispel:IsDispellableByMe("Magic")
+
+    print("My dispel list: " .. tostring(#d))
+    print("Bleed list: " .. tostring(#b))
+    print("Is dispellable by me: " .. tostring(i))
+    print("458771 = " .. tostring(b[458771]))
+end
 
 --[[P4.IAm("Stunned"), P4.IAm("Feared"), Incapacitated, etc]]
 function P4.IAm(status)
@@ -26,35 +35,36 @@ function P4.IAm(status)
     return loc and loc.displayText == status
 end
 
-function P4.CanDispel(...)
-    local target = "player"
-    local debuffTypes = {...}  -- Capture all passed debuff types in a table
+function P4.CanDispel(unit, ...)
+    if not UnitExists(unit) then return false end
 
-    for _, type in ipairs(debuffTypes) do
-        -- Check for dispellable debuffs (Magic, Curse, Disease, Poison)
-        if type == P4.Debuff.Magic or type == P4.Debuff.Curse
-        or type == P4.Debuff.Disease or type == P4.Debuff.Poison then
-            for i = 1, 40 do
-                local aura = C_UnitAuras.GetAuraDataByIndex(target, i, "HARMFUL")
-                if aura and aura.dispelName and aura.dispelName == type then
-                    return true
-                end
+    local debuffTypes = {...}
+
+    for i = 1, 40 do
+        local aura = C_UnitAuras.GetAuraDataByIndex(unit, i, "HARMFUL")
+        if not aura then break end
+
+        for _, type in ipairs(debuffTypes) do
+            -- Dispelling known types like Magic, Curse, Disease, Poison
+            if (type == P4.Debuff.Magic or type == P4.Debuff.Curse or
+                type == P4.Debuff.Disease or type == P4.Debuff.Poison) and
+                aura.dispelName == type and LibDispel:IsDispellableByMe(type) then
+                return true
             end
-        end
 
-        -- Check for control effects (Fear, Stun, Charmed)
-        if type == P4.Debuff.Feared or type == P4.Debuff.Stunned
-        or type == P4.Debuff.Charmed or type == P4.Debuff.Polymorphed then
-            if P4.IAm(type) then
+            -- Bleed detection via LibDispel spell ID list
+            if type == P4.Debuff.Bleed and bleedList[aura.spellId] then
                 return true
             end
         end
+    end
 
-        -- Check for bleeds
-        if type == P4.Debuff.Bleed then
-            for i = 1, 40 do
-                local aura = C_UnitAuras.GetAuraDataByIndex(target, i, "HARMFUL")
-                if aura and bleeds[aura.spellId] then
+    -- Control effects like Fear/Stun/Charm/Polymorph only work on self
+    if UnitIsUnit(unit, "player") then
+        for _, type in ipairs(debuffTypes) do
+            if type == P4.Debuff.Feared or type == P4.Debuff.Stunned or
+               type == P4.Debuff.Charmed or type == P4.Debuff.Polymorphed then
+                if P4.IAm(type) then
                     return true
                 end
             end

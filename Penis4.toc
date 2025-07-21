@@ -4,6 +4,7 @@
 ## Version: 4.0a
 ## Dependencies: Hekili
 ## IconTexture: Interface\AddOns\Penis4\penis
+LibDispel\LibDispel.lua
 logger.lua
 helpers.lua
 character.lua
