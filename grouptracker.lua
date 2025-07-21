@@ -44,7 +44,7 @@ function GT:UpdateMostDamaged()
     local lowestHP = 1.1
 
     for unit, hp in pairs(self.healthData) do
-        if hp < lowestHP and UnitInRange(unit) then
+        if hp < lowestHP and (unit == "player" or UnitInRange(unit)) then
             lowestHP = hp
             lowestUnit = unit
         end
@@ -113,9 +113,3 @@ function GT:GetUnitWithDebuff(...)
     end
     return nil
 end
-
-
---function ideas:
---GetTank
---IsDead
---?

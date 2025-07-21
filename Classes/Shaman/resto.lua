@@ -70,7 +70,7 @@ RSham.priority = function()
     local lowHealthCount = P4.GroupTracker:CountBelowPercent(80)
     local debuffedUnit = P4.GroupTracker:GetUnitWithDebuff(P4.Debuff.Magic, P4.Debuff.Curse)
 
-    if (mduHealth > 80 and not debuffedUnit) then -- Party is healthy, skip healing rotation
+    if (mduHealth > 80 and (not purifySpiritReady or not debuffedUnit)) then -- Party is healthy, skip healing rotation
 
         if mduHealth <= 95 then -- Use Healing Stream Totem on cooldown for minor injuries
             if not IsPlayerSpell(157153) and (hsTotemCharges == 2 or (hsTotemCharges == 1 and nextHsTotem <= 18)) then
@@ -87,7 +87,7 @@ RSham.priority = function()
     end
     -- If no focused, or focus is not MDU or (focus is not Debuffed)
     if not UnitExists("focus") or 
-        not UnitIsUnit("focus", mostDamagedUnit) or 
+        (mostDamagedUnit and not UnitIsUnit("focus", mostDamagedUnit)) or 
         (debuffedUnit and not UnitIsUnit("focus", debuffedUnit)) then
         if debuffedUnit and purifySpiritReady then
             P4.log("Focus DEBUFFED = " .. tostring(debuffedUnit) .. "Focus=debuffed? " .. tostring(UnitIsUnit("focus", debuffedUnit)), P4.SUCCESS)
@@ -101,7 +101,7 @@ RSham.priority = function()
     end
 
     -- Dispel the debuffed unit
-    if debuffedUnit and UnitIsUnit("focus", debuffedUnit) then
+    if purifySpiritReady and debuffedUnit and UnitIsUnit("focus", debuffedUnit) then
         P4.log("Purify Spirit on " .. tostring(debuffedUnit), P4.SUCCESS)
         return RSham.Spells.PurifySpirit
     end
