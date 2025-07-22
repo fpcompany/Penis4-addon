@@ -75,9 +75,15 @@ RSham.priority = function()
     local myHealth = unitHealthPercentage("player")
     local myMana = unitManaPercentage("player")
 
-    if myHealth <= 50 and P4.IsItemReady(211879) then -- 50% hp
-        P4.log("HP POTION (<50%)", P4.DEBUG)
-        return P4.MacroSystem:GetMacroIDForMacro("HealingPotion")
+    if myHealth <= 50 then -- 50% hp
+        if P4.IsItemReady(5512) then -- Warlock's Healthstone 
+            P4.log("HEALTHSTONE (<50%)", P4.DEBUG)
+            return P4.MacroSYstem:GetMacroIDForMacro("Healthstone")
+        end
+        if P4.IsItemReady(211879) then -- Algari Healing Potion
+            P4.log("HP POTION (<50%)", P4.DEBUG)
+            return P4.MacroSystem:GetMacroIDForMacro("HealingPotion")
+        end
     end
 
     if myMana <= 10 and P4.IsItemReady(212240) then -- 10% mana
