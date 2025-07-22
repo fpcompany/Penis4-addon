@@ -45,7 +45,7 @@ Brewmaster.priority = function()
     local debuffsOnMe = P4.AuraTracker:GetActiveDebuffTypes("player")
 
 
-    if (tContains(debuffsOnMe, P4.Debuffs.Disease) or tContains(debuffsOnMe, P4.Debuffs.Poison)) and P4.IsSpellReady(Brewmaster.Spells.Detox) then
+    if (tContains(debuffsOnMe, P4.Debuff.Disease) or tContains(debuffsOnMe, P4.Debuff.Poison)) and P4.IsSpellReady(Brewmaster.Spells.Detox) then
         return Brewmaster.Spells.Detox
     end
 

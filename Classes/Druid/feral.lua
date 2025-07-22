@@ -41,7 +41,7 @@ Feral.priority = function()
     local debuffsOnMe = P4.AuraTracker:GetActiveDebuffTypes("player")
 
 
-    if (tContains(debuffsOnMe, P4.Debuffs.Curse) or tContains(debuffsOnMe, P4.Debuffs.Poison)) and P4.IsSpellReady(Feral.Spells.RemoveCorruption) then
+    if (tContains(debuffsOnMe, P4.Debuff.Curse) or tContains(debuffsOnMe, P4.Debuff.Poison)) and P4.IsSpellReady(Feral.Spells.RemoveCorruption) then
         return Feral.Spells.RemoveCorruption
     end
 
