@@ -109,7 +109,7 @@ function P4.WhoAmI()
     print(raceName .. " " .. specName .. " " .. classNameLocalized .. " class id " .. classid .. ", spec id " .. specid)
 end
 
-local function P4.IsItemReady(itemID)
+function P4.IsItemReady(itemID)
     local start, duration, enable = GetItemCooldown(itemID)
     return enable == true and (start == 0 or (start + duration - GetTime() <= 0))
 end
@@ -145,7 +145,7 @@ function P4.GetHealingState(low_hp_percent, party_low_hp_percent, dispelID, ...)
 end
 
 -- Move to skill tracker?
-local function P4.IsTotemActive(spell_id)
+function P4.IsTotemActive(spell_id)
     local totemName = C_Spell.GetSpellInfo(spell_id).name
     for slot = 1, MAX_TOTEMS do
         local haveTotem, name, startTime, duration, icon = GetTotemInfo(slot)

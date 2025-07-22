@@ -97,7 +97,7 @@ RSham.priority = function()
     end
 
     -- TARGET SELECT LOGIC
-    local action, mostDamagedUnit, mduHealth, lowHealthCount, debuffedUnit = GetHealingState(80, 80, RSham.Spells.PurifySpirit, P4.Debuff.Magic, P4.Debuff.Curse)
+    local action, mostDamagedUnit, mduHealth, lowHealthCount, debuffedUnit = P4.GetHealingState(80, 80, RSham.Spells.PurifySpirit, P4.Debuff.Magic, P4.Debuff.Curse)
     if action then return action end
 
     if mduHealth <= 95 then -- Use Healing Stream Totem on cooldown for minor injuries
