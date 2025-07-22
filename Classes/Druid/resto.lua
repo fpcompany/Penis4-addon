@@ -79,14 +79,14 @@ Rdruid.priority = function()
     local groveGuardiansCharges, groveGuardiansMaxCharges = P4.GetSpellCharges(Rdruid.Spells.GroveGuardians)
     local naturesCureReady = P4.IsSpellReady(Rdruid.Spells.NaturesCure)
 
-    if not P4.selfBuff(Rdruid.Buffs.Eflorescence) and InCombatLockdown() then
+    if not P4.AuraTracker:UnitHas("player", Rdruid.Buffs.Eflorescence) and InCombatLockdown() then
         return Rdruid.Spells.Eflorescence
     end
 
     -- Target Select Logic
     local mostDamagedUnit, mduHealth = P4.GroupTracker:Get()
     local lowHealthCount = P4.GroupTracker:CountBelowPercent(70)
-    local debuffedUnit = P4.GroupTracker:GetUnitWithDebuff(P4.Debuff.Magic, P4.Debuff.Curse, P4.Debuff.Poison)
+    local debuffedUnit = P4.AuraTracker:GetUnitWithDebuff(P4.Debuff.Magic, P4.Debuff.Curse, P4.Debuff.Poison)
     if (mduHealth > 90 and (not naturesCureReady or not debuffedUnit)) then -- Party is healthy, skip healing rotation
         if UnitExists("focus") then
             return P4.MacroSystem:GetMacroIDForMacro("FocusClear")
@@ -112,19 +112,19 @@ Rdruid.priority = function()
     local myHealth = unitHealthPercentage("player")
     local groveGuardiansCharges, groveGuardiansMaxCharges = P4.GetSpellCharges(Rdruid.Spells.GroveGuardians)
     --[[local lifebloomReady = P4.IsSpellReady(Rdruid.Spells.Lifebloom)]]
-    local focusHasLifebloom = P4.UnitBuff("focus", Rdruid.Buffs.Lifebloom)
+    local focusHasLifebloom = P4.AuraTracker:UnitHas("focus", Rdruid.Buffs.Lifebloom)
     local rejuvenationReady = P4.IsSpellReady(Rdruid.Spells.Rejuvenation)
-    local focusHasRejuvenation = P4.UnitBuff("focus", Rdruid.Buffs.Rejuvenation)
+    local focusHasRejuvenation = P4.AuraTracker:UnitHas("focus", Rdruid.Buffs.Rejuvenation)
     --[[local regrowthReady = P4.IsSpellReady(Rdruid.Spells.Regrowth)]]
-    local focusHasRegrowth = P4.UnitBuff("focus", Rdruid.Buffs.Regrowth)
+    local focusHasRegrowth = P4.AuraTracker:UnitHas("focus", Rdruid.Buffs.Regrowth)
     local naturesSwiftnessReady = P4.IsSpellReady(Rdruid.Spells.NaturesSwiftness)
-    local hasNaturesSwiftness = P4.selfBuff(Rdruid.Buffs.NaturesSwiftness)
+    local hasNaturesSwiftness = P4.AuraTracker:UnitHas("player", Rdruid.Buffs.NaturesSwiftness)
     local swiftmendReady = P4.IsSpellReady(Rdruid.Spells.Swiftmend)
     local ironBarkReady = P4.IsSpellReady(Rdruid.Spells.IronBark)
-    local focusHasIronBark = P4.UnitBuff("focus", Rdruid.Buffs.IronBark)
-    local focusHasBarkskin = P4.UnitBuff("focus", Rdruid.Buffs.Barkskin)
+    local focusHasIronBark = P4.AuraTracker:UnitHas("focus", Rdruid.Buffs.IronBark)
+    local focusHasBarkskin = P4.AuraTracker:UnitHas("focus", Rdruid.Buffs.Barkskin)
     local wildGrowthReady = P4.IsSpellReady(Rdruid.Spells.WildGrowth)
-    local focusHasWildGrowth = P4.UnitBuff("focus", Rdruid.Buffs.WildGrowth)
+    local focusHasWildGrowth = P4.AuraTracker:UnitHas("focus", Rdruid.Buffs.WildGrowth)
     local tranquilityReady = P4.IsSpellReady(Rdruid.Spells.Tranquility)
     local cenarionWardReady = P4.IsSpellReady(Rdruid.Spells.CenarionWard)
     local hasTreant = GetTotemInfo(1)
@@ -132,7 +132,7 @@ Rdruid.priority = function()
 
     --[[-- Need to disable Hekili's Spiritwalker's grace recommendation
     if IsPlayerMoving() and spiritwalkerReady then
-        P4.log("Spiritwalker's grace (moving)", P4.SUCCESS)
+        P4.log("Spiritwalker's grace (moving)", P4.DEBUG)
         return Rdruid.Spells.Spiritwalker
     end]]
 
@@ -229,63 +229,63 @@ Rdruid.priority = function()
     
     --[[-- Use CBT totem on cooldown
     if cbtTotemReady and cbtTotemCharges == 2 then
-        P4.log("CBT totem (2 charges)", P4.SUCCESS)
+        P4.log("CBT totem (2 charges)", P4.DEBUG)
         return Rdruid.Spells.CloudburstTotem
     end]]
 
     --[[-- Generate Master of the elements with incast lava burst (only if target is attackable)
     if mduHealth >= 70 and masterOfTheElementsLearned and not hasMasterOfTheElements and hasLavaSurge 
         and UnitExists("target") and UnitCanAttack("player", "target")then
-        P4.log("Lava Burst (consume lava surge)", P4.SUCCESS)
+        P4.log("Lava Burst (consume lava surge)", P4.DEBUG)
         return Rdruid.Spells.LavaBurst
     end]]
 
     -- Keep Earth Shield on the tank
-    --[[if targetIsTank() and not P4.UnitBuff("target", Rdruid.Buffs.EarthShield) then
-        P4.log("Rebuff Earth Shield on Tank", P4.SUCCESS)
+    --[[if targetIsTank() and not P4.AuraTracker:UnitHas("target", Rdruid.Buffs.EarthShield) then
+        P4.log("Rebuff Earth Shield on Tank", P4.DEBUG)
         return Rdruid.Spells.EarthShield
     end]]
 
     --[[-- Unleash life to buff heals
     if unleashLifeReady then
-        P4.log("Unleash Life (on cooldown)", P4.SUCCESS)
+        P4.log("Unleash Life (on cooldown)", P4.DEBUG)
         return Rdruid.Spells.UnleashLife
     end]]
 
     -- Consume Downpour (BUGGY)
     --[[if hasDownpour and lowHealthCount >= 3 then
-        P4.log("Surging Totem (Consume Downpour)", P4.SUCCESS)
+        P4.log("Surging Totem (Consume Downpour)", P4.DEBUG)
         return Rdruid.Spells.SurgingTotem
     end]]
 
     --[[
     -- Chain Heal if High Tide procced
     if hasHighTide and lowHealthCount >= 3 then
-        P4.log("Chain Heal (has High Tide and 3 people injired)", P4.SUCCESS)
+        P4.log("Chain Heal (has High Tide and 3 people injired)", P4.DEBUG)
         return Rdruid.Spells.ChainHeal
     end
     
     -- Use Wellspring after AOE
     if wellspringReady and lowHealthCount >= 4 then
-        P4.log("Wellspring (4 players are hurt)", P4.SUCCESS)
+        P4.log("Wellspring (4 players are hurt)", P4.DEBUG)
         return Rdruid.Spells.Wellspring
     end
 
     -- Use Healing Tide totem after AOE
     if htTotemReady and lowHealthCount >= 4 then
-        P4.log("Healing Tide Totem (4 players are hurt)", P4.SUCCESS)
+        P4.log("Healing Tide Totem (4 players are hurt)", P4.DEBUG)
         return Rdruid.Spells.HealingTideTotem
     end
 
     -- Buffed Healing Surge
     if hasMasterOfTheElements then
-        P4.log("Healing Surge (Consume Master of the Elements)", P4.SUCCESS)
+        P4.log("Healing Surge (Consume Master of the Elements)", P4.DEBUG)
         return Rdruid.Spells.HealingSurge
     end
 
     -- Use Riptide if available and target not affected by Riptide, or if dont have Tidal Waves stacks
     if P4.IsSpellReady(Rdruid.Spells.Riptide) and (not targetHasRiptide or not hasTidalWaves) then
-        P4.log("Riptide (tidal = " .. tostring(hasTidalWaves) .. ", has buff = " .. tostring(targetHasRiptide) .. ")", P4.SUCCESS)
+        P4.log("Riptide (tidal = " .. tostring(hasTidalWaves) .. ", has buff = " .. tostring(targetHasRiptide) .. ")", P4.DEBUG)
         return Rdruid.Spells.Riptide
     end
 
@@ -296,13 +296,13 @@ Rdruid.priority = function()
 
     -- Consume Undulation
     if hasUndulation then
-        P4.log("Healing Surge (consume Undulation)", P4.SUCCESS)
+        P4.log("Healing Surge (consume Undulation)", P4.DEBUG)
         return Rdruid.Spells.HealingSurge
     end
 
     -- If 3 or more people are injured, use Chain Heal
     if ancestralReachLearned and lowHealthCount > 3 then
-        P4.log("Chain Heal (at least 3 party members)", P4.SUCCESS)
+        P4.log("Chain Heal (at least 3 party members)", P4.DEBUG)
         return Rdruid.Spells.ChainHeal
     end
 

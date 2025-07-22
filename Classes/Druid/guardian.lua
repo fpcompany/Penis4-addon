@@ -32,14 +32,15 @@ Guardian.priority = function()
     local rage = UnitPower("player", 1)
     local healthPercent = 100 * (UnitHealth("player") / UnitHealthMax("player"))    
     local targetHealthPercent = 100 * (UnitHealth("target") / UnitHealthMax("target"))
-    local hasIronfur, _, ironFurStacks = P4.selfBuff(Guardian.Buffs.Ironfur) -- Iron fur stacks
-    local hasFrenzied = P4.selfBuff(Guardian.Buffs.FrenziedRegeneration)
-    local hasBarkskin = P4.selfBuff(Guardian.Buffs.Barkskin)
-    local hasRageOfSleeper = P4.selfBuff(Guardian.Buffs.RageOfTheSleeper)
-    local hasSurvivalInstincts = P4.selfBuff(Guardian.Buffs.SurvivalInstincts)
+    local hasIronfur, _, ironFurStacks = P4.AuraTracker:UnitHas("player", Guardian.Buffs.Ironfur) -- Iron fur stacks
+    local hasFrenzied = P4.AuraTracker:UnitHas("player", Guardian.Buffs.FrenziedRegeneration)
+    local hasBarkskin = P4.AuraTracker:UnitHas("player", Guardian.Buffs.Barkskin)
+    local hasRageOfSleeper = P4.AuraTracker:UnitHas("player", Guardian.Buffs.RageOfTheSleeper)
+    local hasSurvivalInstincts = P4.AuraTracker:UnitHas("player", Guardian.Buffs.SurvivalInstincts)
+    local debuffsOnMe = AT:GetActiveDebuffTypes("player")
 
 
-    if (P4.CanDispel("player", P4.Debuff.Curse) or P4.CanDispel("player", P4.Debuff.Poison)) and P4.IsSpellReady(Guardian.Spells.RemoveCorruption) then
+    if (tContains(debuffsOnMe, P4.Debuffs.Curse) or tContains(debuffsOnMe, P4.Debuffs.Poison)) and P4.IsSpellReady(Guardian.Spells.RemoveCorruption) then
         return Guardian.Spells.RemoveCorruption
     end
 

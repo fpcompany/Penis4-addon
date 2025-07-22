@@ -108,3 +108,53 @@ function P4.WhoAmI()
     local _, specName = GetSpecializationInfo(specid)
     print(raceName .. " " .. specName .. " " .. classNameLocalized .. " class id " .. classid .. ", spec id " .. specid)
 end
+
+local function P4.IsItemReady(itemID)
+    local start, duration, enable = GetItemCooldown(itemID)
+    return enable == true and (start == 0 or (start + duration - GetTime() <= 0))
+end
+
+-- Returns: [ACTION] [MOST DAMAGED UNIT] [MOST DAMAGED UNIT HP] [COUNT OF DAMAGED PARTY MEMBERS] [DEBUFFED UNIT ONLY IF CAN DISPEL]
+function P4.GetHealingState(low_hp_percent, party_low_hp_percent, dispelID, ...)
+    local debuffTypes = ...
+    local mostDamagedUnit, mduHealth = P4.GroupTracker:Get()
+    local lowHealthCount = P4.GroupTracker:CountBelowPercent(party_low_hp_percent)
+    local debuffedUnit = P4.AuraTracker:GetUnitWithDebuff(...)
+    local dispelReady = P4.IsSpellReady(dispelID)
+    local action = nil
+
+    if (mduHealth > low_hp_percent and (not dispelReady or not debuffedUnit)) then
+        if UnitExists("focus") then
+            P4.log("Defocus", P4.DEBUG)
+            action = P4.MacroSystem:GetMacroIDForMacro("FocusClear")
+        end
+    end
+
+    if not action and not (UnitExists("focus")) or (mostDamagedUnit and not UnitIsUnit("focus", mostDamagedUnit)) or (debuffedUnit and not UnitIsUnit("focus", debuffedUnit)) then
+        if debuffedUnit and dispelReady then
+            P4.log("Focus " .. tostring(debuffedUnit) .. " for dispel", P4.DEBUG)
+            action = P4.MacroSystem:GetMacroIDForUnit(debuffedUnit)
+        end
+        if not action and mduHealth <= low_hp_percent then
+            P4.log("Focus " .. tostring(mostDamagedUnit) .. " for healing (" .. mduHealth .. "%)", P4.DEBUG)
+            action = P4.MacroSystem:GetMacroIDForUnit(mostDamagedUnit)
+        end
+    end
+
+    return action, mostDamagedUnit, mduHealth, lowHealthCount, (debuffedUnit and dispelReady) and debuffedUnit or nil
+end
+
+-- Move to skill tracker?
+local function P4.IsTotemActive(spell_id)
+    local totemName = C_Spell.GetSpellInfo(spell_id).name
+    for slot = 1, MAX_TOTEMS do
+        local haveTotem, name, startTime, duration, icon = GetTotemInfo(slot)
+        if haveTotem and name == totemName then
+            local remaining = (startTime + duration) - GetTime()
+            if remaining > 1 then -- avoid false positives from expired totems
+                return true
+            end
+        end
+    end
+    return false
+end

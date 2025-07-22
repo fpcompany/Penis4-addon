@@ -18,24 +18,14 @@ P4.Debuff = {
 
 local bleedList = LibDispel:GetBleedList()
 
-function P4.TestDispel()
-    local b = LibDispel:GetBleedList()
-    local d = LibDispel:GetMyDispelTypes()
-    local i = LibDispel:IsDispellableByMe("Magic")
-
-    print("My dispel list: " .. tostring(#d))
-    print("Bleed list: " .. tostring(#b))
-    print("Is dispellable by me: " .. tostring(i))
-    print("458771 = " .. tostring(b[458771]))
-end
-
 --[[P4.IAm("Stunned"), P4.IAm("Feared"), Incapacitated, etc]]
-function P4.IAm(status)
+function P4.IAm(status) -- YOU OBEY
     local loc = C_LossOfControl.GetActiveLossOfControlData(1)
     return loc and loc.displayText == status
 end
 
 function P4.CanDispel(unit, ...)
+    print("P4.CANDISPEL IS DEPRECATED STOP USING IT")
     if not UnitExists(unit) then return false end
 
     local debuffTypes = {...}
@@ -76,12 +66,14 @@ end
 
 
 function P4.selfBuff(id)
+    print("SELFBUFF IS DEPRECATED STOP USING IT")
     local spellInfo = C_UnitAuras.GetPlayerAuraBySpellID(id)
     local remaining = spellInfo and spellInfo.expirationTime - GetTime() or 0
     return spellInfo ~= nil, remaining, spellInfo and spellInfo.applications or 0
 end
 
 function P4.UnitBuff(unit, id)
+    print("UNITBUFF IS DEPRECATED STOP USING")
     local spellInfo = C_UnitAuras.GetAuraDataBySpellName(unit, C_Spell.GetSpellInfo(id).name)
     local remaining = spellInfo and spellInfo.expirationTime - GetTime() or 0
     return spellInfo ~= nil, remaining, spellInfo and spellInfo.applications or 0

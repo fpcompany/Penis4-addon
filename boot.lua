@@ -49,6 +49,7 @@ local update = function(indicator, source)
     -- override hekili's spell and keybind if got priority cast
     if prio and prio > 0 then 
         spell = prio
+        P4.log("Override >> " .. prio .." = ".. tostring(Hekili.Class.abilities[prio].key),P4.DEBUG)
         local prio_spell_key = Hekili.Class.abilities[prio].key
         local info = Hekili.KeybindInfo[prio_spell_key]
 
@@ -218,6 +219,7 @@ P4.HandleEvent = function(self, event, ...)
             P4.EnqueueSetup()
         end
         P4.log("Welcome to Penis 4!\nPenis 4: enlarge your e-penis.", P4.SUCCESS)
+        P4.log("...to enable debug, use /run P4.debug(true)", P4.NOTICE)
     elseif event == "PLAYER_EQUIPMENT_CHANGED" then
         local slot = ...
         P4.Character:UpdateSlot(slot)

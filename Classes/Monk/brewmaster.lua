@@ -41,10 +41,11 @@ Brewmaster.priority = function()
     local maxChargesCelestialBrew, startCelestialBrew, chargesCelestialBrew, durationCelestialBrew = celestialBrewChargesInfo.maxCharges, celestialBrewChargesInfo.cooldownStartTime, celestialBrewChargesInfo.currentCharges, celestialBrewChargesInfo.cooldownDuration --Celestial Brew charges
     local celestialBrewCooldown = math.max(0, (startCelestialBrew + durationCelestialBrew) - GetTime()) --Celestial Brew cooldown
     local healingSpheresCount= C_Spell.GetSpellCastCount(Brewmaster.Spells.ExpelHarm) --Expel Harm charges
-    local _, purifiedChiTimer, purifiedChiStacks = P4.selfBuff(Brewmaster.Buffs.PurifiedChi)
+    local _, purifiedChiTimer, purifiedChiStacks = P4.AuraTracker:UnitHas("player", Brewmaster.Buffs.PurifiedChi)
+    local debuffsOnMe = AT:GetActiveDebuffTypes("player")
 
 
-    if (P4.CanDispel("player", P4.Debuff.Disease) or P4.CanDispel("player", P4.Debuff.Poison)) and P4.IsSpellReady(Brewmaster.Spells.Detox) then
+    if (tContains(debuffsOnMe, P4.Debuffs.Disease) or tContains(debuffsOnMe, P4.Debuffs.Poison)) and P4.IsSpellReady(Brewmaster.Spells.Detox) then
         return Brewmaster.Spells.Detox
     end
 
@@ -68,17 +69,17 @@ Brewmaster.priority = function()
     if healthPercentPlayer < 70 and P4.IsSpellReady(Brewmaster.Spells.ExpelHarm) and healingSpheresCount > 3 then
         return Brewmaster.Spells.ExpelHarm
     end
-    if healthPercentPlayer < 70 and P4.selfBuff(Brewmaster.Buffs.VivaciousVivification) then
+    if healthPercentPlayer < 70 and P4.AuraTracker:UnitHas("player", Brewmaster.Buffs.VivaciousVivification) then
         return Brewmaster.Spells.Vivify
     end
 
 
-    if healthPercentPlayer < 80 and chargesCelestialBrew > 0 and purifiedChiStacks > 3 and not P4.selfBuff(Brewmaster.Buffs.CelestialBrewBuff) and not P4.selfBuff(Brewmaster.Buffs.FortifyingBrewBuff) then
+    if healthPercentPlayer < 80 and chargesCelestialBrew > 0 and purifiedChiStacks > 3 and not P4.AuraTracker:UnitHas("player", Brewmaster.Buffs.CelestialBrewBuff) and not P4.AuraTracker:UnitHas("player", Brewmaster.Buffs.FortifyingBrewBuff) then
         return Brewmaster.Spells.CelestialBrew
     end
 
 
-    if healthPercentPlayer < 60 and not P4.selfBuff(Brewmaster.Buffs.FortifyingBrewBuff) and not P4.selfBuff(Brewmaster.Buffs.CelestialBrewBuff)  and P4.IsSpellReady(Brewmaster.Spells.FortifyingBrew) then
+    if healthPercentPlayer < 60 and not P4.AuraTracker:UnitHas("player", Brewmaster.Buffs.FortifyingBrewBuff) and not P4.AuraTracker:UnitHas("player", Brewmaster.Buffs.CelestialBrewBuff)  and P4.IsSpellReady(Brewmaster.Spells.FortifyingBrew) then
         return Brewmaster.Spells.FortifyingBrew
     end
 

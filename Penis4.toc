@@ -12,8 +12,9 @@ combinations.lua
 macrolegacy.lua
 macrosystem.lua
 spells.lua
-auras.lua
+auraslegacy.lua
 grouptracker.lua
+auratracker.lua
 Classes\Common.lua
 Classes\Mage\mage.lua
 Classes\Mage\fire.lua

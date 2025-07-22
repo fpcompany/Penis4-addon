@@ -30,17 +30,18 @@ Feral.priority = function()
     local healthPercent = 100 * (UnitHealth("player") / UnitHealthMax("player"))    
     local targetHealthPercent = 100 * (UnitHealth("target") / UnitHealthMax("target"))
     local frenziedRegenerationReady = P4.IsSpellReady(Feral.Spells.FrenziedRegeneration)
-    local hasFrenziedRegeneration = P4.selfBuff(Feral.Buffs.FrenziedRegeneration)
+    local hasFrenziedRegeneration = P4.AuraTracker:UnitHas("player", Feral.Buffs.FrenziedRegeneration)
     local barkskinReady = P4.IsSpellReady(Feral.Spells.Barkskin)
-    local hasBarkskin = P4.selfBuff(Feral.Buffs.Barkskin)
+    local hasBarkskin = P4.AuraTracker:UnitHas("player", Feral.Buffs.Barkskin)
     local survivalInstinctsReady = P4.IsSpellReady(Feral.Spells.SurvivalInstincts)
-    local hasSurvivalInstincts = P4.selfBuff(Feral.Buffs.SurvivalInstincts)
+    local hasSurvivalInstincts = P4.AuraTracker:UnitHas("player", Feral.Buffs.SurvivalInstincts)
     local renewalReady = P4.IsSpellReady(Feral.Spells.Renewal)
     local bearFormReady = P4.IsSpellReady(Feral.Spells.BearForm)
-    local hasBearForm = P4.selfBuff(Feral.Buffs.BearForm)
+    local hasBearForm = P4.AuraTracker:UnitHas("player", Feral.Buffs.BearForm)
+    local debuffsOnMe = AT:GetActiveDebuffTypes("player")
 
 
-    if (P4.CanDispel("player", P4.Debuff.Curse) or P4.CanDispel("player", P4.Debuff.Poison)) and P4.IsSpellReady(Feral.Spells.RemoveCorruption) then
+    if (tContains(debuffsOnMe, P4.Debuffs.Curse) or tContains(debuffsOnMe, P4.Debuffs.Poison)) and P4.IsSpellReady(Feral.Spells.RemoveCorruption) then
         return Feral.Spells.RemoveCorruption
     end
 

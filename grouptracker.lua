@@ -107,13 +107,3 @@ function GT:CountBelowPercent(percent)
     end
     return count
 end
-
-function GT:GetUnitWithDebuff(...)
-    local debuffTypes = {...}
-    for _, unit in ipairs(self.units) do
-        if UnitIsFriend("player", unit) and P4.CanDispel(unit, unpack(debuffTypes)) then
-            return unit
-        end
-    end
-    return nil
-end
