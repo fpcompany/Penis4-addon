@@ -110,6 +110,9 @@ function P4.WhoAmI()
 end
 
 function P4.IsItemReady(itemID)
+    local count = GetItemCount(itemID, false) -- false = don't include bank
+    if count == 0 then return false end
+
     local start, duration, enable = GetItemCooldown(itemID)
     return enable == true and (start == 0 or (start + duration - GetTime() <= 0))
 end
