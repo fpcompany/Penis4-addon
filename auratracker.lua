@@ -134,7 +134,7 @@ eventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 ------------------------------------------------
 
 function AT:EveryoneHas(spellId)
-    for _, unit in ipairs(P4.GroupTracker.units or {}) do
+    for _, unit in ipairs(P4.GroupTracker:GetUnitsInRange() or {}) do
         if not self:UnitHas(unit, spellId) then
             return false
         end
@@ -144,7 +144,7 @@ end
 
 function AT:WhoHas(spellId)
     local result = {}
-    for _, unit in ipairs(P4.GroupTracker.units or {}) do
+    for _, unit in ipairs(P4.GroupTracker.units:GetUnitsInRange() or {}) do
         if self:UnitHas(unit, spellId) then
             table.insert(result, unit)
         end
@@ -196,7 +196,7 @@ function AT:GetUnitWithDebuff(...)
         wantedTypes[t] = true
     end
 
-    for _, unit in ipairs(P4.GroupTracker.units or {}) do
+    for _, unit in ipairs(P4.GroupTracker:GetUnitsInRange() or {}) do
         if UnitIsFriend("player", unit) then
             local active = self:GetActiveDebuffTypes(unit)
             for _, debuffType in ipairs(active) do

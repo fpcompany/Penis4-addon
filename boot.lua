@@ -257,3 +257,23 @@ f:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 f:RegisterEvent("TRAIT_CONFIG_UPDATED")
 f:RegisterEvent("PLAYER_REGEN_ENABLED")
 f:Show()
+
+--[[
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+
+local enrages = {
+    [333241] = true, -- Raging Tantrum
+    -- Add more enrage spellIDs here if needed
+}
+
+frame:SetScript("OnEvent", function(self, event)
+    local timestamp, subEvent, _, sourceGUID, sourceName, _, _, destGUID, destName, _, _, spellId, spellName = CombatLogGetCurrentEventInfo()
+
+    if subEvent == "SPELL_AURA_APPLIED" and enrages[spellId] then
+        print(destName .. " is enraged with " .. spellName)
+        -- store it in a table if you want to track active enrages
+    elseif subEvent == "SPELL_AURA_REMOVED" and enrages[spellId] then
+        print(destName .. " is no longer enraged with " .. spellName)
+    end
+end)]]

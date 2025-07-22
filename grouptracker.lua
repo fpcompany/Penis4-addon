@@ -113,3 +113,13 @@ function GT:CountBelowPercent(percent)
     end
     return count
 end
+
+function GT:GetUnitsInRange()
+    local inRange = {}
+    for _, unit in ipairs(self.units) do
+        if UnitCanAssist("player", unit) and (unit == "player" or UnitInRange(unit)) then
+            table.insert(inRange, unit)
+        end
+    end
+    return inRange
+end

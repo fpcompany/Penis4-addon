@@ -161,3 +161,21 @@ function P4.IsTotemActive(spell_id)
     end
     return false
 end
+
+function P4.HasEnrageEffect(unit)
+    if not UnitExists(unit) then return false end
+
+    local index = 1
+    while true do
+        local aura = C_UnitAuras.GetAuraDataByIndex(unit, index, "HARMFUL")
+        if not aura then break end
+
+        if aura.dispelName == "Enrage" then
+            return true, aura.name, aura.spellId
+        end
+
+        index = index + 1
+    end
+
+    return false
+end
