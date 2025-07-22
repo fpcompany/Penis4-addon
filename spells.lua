@@ -67,7 +67,7 @@ end
 function P4.IsSpellReady(id)
     local cd = P4.getRemainingCooldown(id)
 
-    if not IsPlayerSpell(id) then
+    if not IsPlayerSpell(id) and id ~= 6262 then -- not healthstone xddddd
         return false
     end
 

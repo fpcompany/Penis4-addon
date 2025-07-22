@@ -78,7 +78,7 @@ RSham.priority = function()
     if myHealth <= 50 then -- 50% hp
         if P4.IsItemReady(5512) then -- Warlock's Healthstone 
             P4.log("HEALTHSTONE (<50%)", P4.DEBUG)
-            return P4.MacroSYstem:GetMacroIDForMacro("Healthstone")
+            return P4.MacroSystem:GetMacroIDForMacro("Healthstone")
         end
         if P4.IsItemReady(211879) then -- Algari Healing Potion
             P4.log("HP POTION (<50%)", P4.DEBUG)
