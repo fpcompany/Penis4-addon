@@ -13,12 +13,18 @@ local function UpdateGroupUnits()
 
     if IsInRaid() then
         for i = 1, GetNumGroupMembers() do
-            table.insert(GT.units, "raid"..i)
+            local unit = "raid" .. i
+            if UnitCanAssist("player", unit) then
+                table.insert(GT.units, unit)
+            end
         end
     elseif IsInGroup() then
         table.insert(GT.units, "player")
         for i = 1, GetNumSubgroupMembers() do
-            table.insert(GT.units, "party"..i)
+            local unit = "party" .. i
+            if UnitCanAssist("player", unit) then
+                table.insert(GT.units, unit)
+            end
         end
     else
         table.insert(GT.units, "player")
@@ -26,7 +32,7 @@ local function UpdateGroupUnits()
 end
 
 local function UpdateUnitHealth(unit)
-    if UnitExists(unit) and UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and UnitIsFriend("player", unit) then
+    if UnitExists(unit) and UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) then
         local hp = UnitHealth(unit)
         local maxHp = UnitHealthMax(unit)
         local absorb = UnitGetTotalHealAbsorbs(unit) or 0
@@ -48,7 +54,7 @@ function GT:UpdateMostDamaged()
     local lowestHP = 1.1
 
     for unit, hp in pairs(self.healthData) do
-        if hp < lowestHP and UnitIsFriend("player", unit) and (unit == "player" or UnitInRange(unit)) then
+        if hp < lowestHP and UnitCanAssist("player", unit) and (unit == "player" or UnitInRange(unit)) then
             lowestHP = hp
             lowestUnit = unit
         end
@@ -101,7 +107,7 @@ function GT:CountBelowPercent(percent)
     local count = 0
     for _, unit in ipairs(self.units) do
         local hp = self.healthData[unit]
-        if hp and hp * 100 < percent and UnitIsFriend("player", unit) then
+        if hp and hp * 100 < percent and UnitCanAssist("player", unit) then
             count = count + 1
         end
     end
