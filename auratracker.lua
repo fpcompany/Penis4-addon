@@ -7,6 +7,14 @@ AT.unitAuras = {}
 local LibDispel = LibStub("LibDispel-1.0")
 local bleedList = LibDispel:GetBleedList()
 
+-- SAY THE LINE HEALERJAK
+local badDebuffs = {
+    [472197] = true, -- One-Armed Bandit | Withering Flames
+    [164812] = true, -- MOONFIRE
+}
+-- NIGGA THESE DEBUFFS ARE *TOXIC* TO MY WORKFLOW
+-- HAHAHA, I LOVE THIS LITTLE FELLA
+
 P4.Debuff = {
     Magic = "Magic",
     Curse = "Curse",
@@ -163,7 +171,7 @@ function AT:GetActiveDebuffTypes(unit)
     local found = {}
 
     for spellId, aura in pairs(auras) do
-        if not aura.isHelpful then
+        if not aura.isHelpful and not badDebuffs[spellId] then
             -- Basic dispellable types
             local dispelType = aura.dispelName
             if dispelType and P4.Debuff[dispelType] and not found[dispelType] then
@@ -178,6 +186,7 @@ function AT:GetActiveDebuffTypes(unit)
             end
         end
     end
+
     return result
 end
 
