@@ -37,7 +37,7 @@ Guardian.priority = function()
     local hasBarkskin = P4.AuraTracker:UnitHas("player", Guardian.Buffs.Barkskin)
     local hasRageOfSleeper = P4.AuraTracker:UnitHas("player", Guardian.Buffs.RageOfTheSleeper)
     local hasSurvivalInstincts = P4.AuraTracker:UnitHas("player", Guardian.Buffs.SurvivalInstincts)
-    local debuffsOnMe = AT:GetActiveDebuffTypes("player")
+    local debuffsOnMe = P4.AuraTracker:GetActiveDebuffTypes("player")
 
 
     if (tContains(debuffsOnMe, P4.Debuffs.Curse) or tContains(debuffsOnMe, P4.Debuffs.Poison)) and P4.IsSpellReady(Guardian.Spells.RemoveCorruption) then

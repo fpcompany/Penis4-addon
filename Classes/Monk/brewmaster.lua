@@ -42,7 +42,7 @@ Brewmaster.priority = function()
     local celestialBrewCooldown = math.max(0, (startCelestialBrew + durationCelestialBrew) - GetTime()) --Celestial Brew cooldown
     local healingSpheresCount= C_Spell.GetSpellCastCount(Brewmaster.Spells.ExpelHarm) --Expel Harm charges
     local _, purifiedChiTimer, purifiedChiStacks = P4.AuraTracker:UnitHas("player", Brewmaster.Buffs.PurifiedChi)
-    local debuffsOnMe = AT:GetActiveDebuffTypes("player")
+    local debuffsOnMe = P4.AuraTracker:GetActiveDebuffTypes("player")
 
 
     if (tContains(debuffsOnMe, P4.Debuffs.Disease) or tContains(debuffsOnMe, P4.Debuffs.Poison)) and P4.IsSpellReady(Brewmaster.Spells.Detox) then
