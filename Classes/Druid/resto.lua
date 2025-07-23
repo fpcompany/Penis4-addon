@@ -23,6 +23,15 @@ local function unitHealthPercentage(unit)
     return (current / max) * 100
 end
 
+local function unitManaPercentage(unit)
+    local current = UnitPower("player", 0)
+    local max = UnitPowerMax("player", 0)
+    if max == 0 then
+        return 0
+    end
+    return (current / max) * 100
+end
+
 local function targetIsTank()
     local role = UnitGroupRolesAssigned("focus")
     return role == "TANK"
@@ -52,6 +61,7 @@ Rdruid.Spells = {
     Tranquility = 740,
     Flourish = 197721,
     IncarnationTreeOfLife = 197721,
+    MarkOfTheWild = 1126,
 }
 
 Rdruid.Buffs = {
@@ -73,11 +83,23 @@ Rdruid.Buffs = {
     Tranquility = 157982,
     Flourish = 197721,
     ClearCasting = 16870,
+    MarkOfTheWild = 1126,
 }
 
 Rdruid.priority = function()
     local groveGuardiansCharges, groveGuardiansMaxCharges = P4.GetSpellCharges(Rdruid.Spells.GroveGuardians)
     local naturesCureReady = P4.IsSpellReady(Rdruid.Spells.NaturesCure)
+
+    local myMana = unitManaPercentage("player")
+    if myMana <= 10 and P4.IsItemReady(212240) then -- 10% mana
+        P4.log("MANA POTION (<10%)", P4.DEBUG)
+        return P4.MacroSystem:GetMacroIDForMacro("ManaPotion")
+    end
+
+    if not P4.AuraTracker:EveryoneHas(Feral.Buffs.MarkOfTheWild) then
+        P4.log("Lapka (someone does not have it)", P4.DEBUG)
+        return Feral.Spells.MarkOfTheWild
+    end
 
     if not P4.AuraTracker:UnitHas("player", Rdruid.Buffs.Eflorescence) and InCombatLockdown() then
         return Rdruid.Spells.Eflorescence
@@ -123,6 +145,7 @@ Rdruid.priority = function()
     local ironBarkReady = P4.IsSpellReady(Rdruid.Spells.IronBark)
     local focusHasIronBark = P4.AuraTracker:UnitHas("focus", Rdruid.Buffs.IronBark)
     local focusHasBarkskin = P4.AuraTracker:UnitHas("focus", Rdruid.Buffs.Barkskin)
+    local barkskinReady = P4.IsSpellReady(Rdruid.Spells.Barkskin)
     local wildGrowthReady = P4.IsSpellReady(Rdruid.Spells.WildGrowth)
     local focusHasWildGrowth = P4.AuraTracker:UnitHas("focus", Rdruid.Buffs.WildGrowth)
     local tranquilityReady = P4.IsSpellReady(Rdruid.Spells.Tranquility)
@@ -137,11 +160,16 @@ Rdruid.priority = function()
     end]]
 
     -- Protect self if party is in a pinch
-    if ((myHealth <= 70 and lowHealthCount >= 3) or (myHealth <= 70 and lowHealthCount >= 2 and mduHealth <= 50)) then
+    if (myHealth <= 70 and lowHealthCount >= 3) or (myHealth <= 50 and lowHealthCount <= 2) then
         if P4.IsSpellReady(Rdruid.Spells.Renewal) then
             return Rdruid.Spells.Renewal
-        else
+        elseif barkskinReady then
             return Rdruid.Spells.Barkskin
+        elseif myHealth <= 50 then -- 50% hp
+            if P4.IsItemReady(211879) then -- Algari Healing Potion
+                P4.log("HP POTION (<50%)", P4.DEBUG)
+                return P4.MacroSystem:GetMacroIDForMacro("HealingPotion")
+            end
         end
     end
 

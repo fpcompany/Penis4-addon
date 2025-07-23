@@ -30,8 +30,8 @@ Feral.Buffs = {
 }
 
 Feral.priority = function()
-    local healthPercent = 100 * (UnitHealth("player") / UnitHealthMax("player"))    
-    local targetHealthPercent = 100 * (UnitHealth("target") / UnitHealthMax("target"))
+    local myHealth = 100 * (UnitHealth("player") / UnitHealthMax("player"))    
+    local targetmyHealth = 100 * (UnitHealth("target") / UnitHealthMax("target"))
     local frenziedRegenerationReady = P4.IsSpellReady(Feral.Spells.FrenziedRegeneration)
     local hasFrenziedRegeneration = P4.AuraTracker:UnitHas("player", Feral.Buffs.FrenziedRegeneration)
     local barkskinReady = P4.IsSpellReady(Feral.Spells.Barkskin)
@@ -69,7 +69,7 @@ Feral.priority = function()
         return Feral.Spells.Mangle
     end
 
-    if healthPercent < 70 then
+    if myHealth < 70 then
         if renewalReady then
             return Feral.Spells.Renewal
         elseif barkskinReady and not hasFrenziedRegeneration and not hasSurvivalInstincts then
@@ -77,14 +77,14 @@ Feral.priority = function()
         end
     end
 
-    if healthPercent <= 50 then -- 50% hp
+    if myHealth <= 50 then -- 50% hp
         if P4.IsItemReady(211879) then -- Algari Healing Potion
             P4.log("HP POTION (<50%)", P4.DEBUG)
             return P4.MacroSystem:GetMacroIDForMacro("HealingPotion")
         end
     end
 
-    if healthPercent < 50 then
+    if myHealth < 50 then
         if survivalInstinctsReady and not hasFrenziedRegeneration and not hasBarkskin  then
             return Feral.Spells.SurvivalInstincts
         elseif frenziedRegenerationReady and not hasBarkskin and not hasSurvivalInstincts then

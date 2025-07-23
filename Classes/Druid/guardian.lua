@@ -30,8 +30,8 @@ Guardian.priority = function()
     local FR_COST = 10
 
     local rage = UnitPower("player", 1)
-    local healthPercent = 100 * (UnitHealth("player") / UnitHealthMax("player"))    
-    local targetHealthPercent = 100 * (UnitHealth("target") / UnitHealthMax("target"))
+    local myHealth = 100 * (UnitHealth("player") / UnitHealthMax("player"))    
+    local targetmyHealth = 100 * (UnitHealth("target") / UnitHealthMax("target"))
     local hasIronfur, _, ironFurStacks = P4.AuraTracker:UnitHas("player", Guardian.Buffs.Ironfur) -- Iron fur stacks
     local hasFrenzied = P4.AuraTracker:UnitHas("player", Guardian.Buffs.FrenziedRegeneration)
     local hasBarkskin = P4.AuraTracker:UnitHas("player", Guardian.Buffs.Barkskin)
@@ -40,8 +40,25 @@ Guardian.priority = function()
     local debuffsOnMe = P4.AuraTracker:GetActiveDebuffTypes("player")
 
 
-    if (tContains(debuffsOnMe, P4.Debuff.Curse) or tContains(debuffsOnMe, P4.Debuff.Poison)) and P4.IsSpellReady(Guardian.Spells.RemoveCorruption) then
+    --[[if (tContains(debuffsOnMe, P4.Debuff.Curse) or tContains(debuffsOnMe, P4.Debuff.Poison)) and P4.IsSpellReady(Guardian.Spells.RemoveCorruption) then
         return Guardian.Spells.RemoveCorruption
+    end]]
+
+    local debuffedUnit = P4.AuraTracker:GetUnitWithDebuff(P4.Debuff.Poison, P4.Debuff.Curse)
+    local dispelReady = P4.IsSpellReady(Feral.Spells.RemoveCorruption)
+    if debuffedUnit and not UnitIsUnit("focus", debuffedUnit) then
+            if dispelReady then
+                P4.log("Focus " .. tostring(debuffedUnit) .. " for dispel", P4.DEBUG)
+                return P4.MacroSystem:GetMacroIDForUnit(debuffedUnit)
+            end
+    end
+    if debuffedUnit and UnitIsUnit("focus", debuffedUnit) and dispelReady then
+      return Feral.Spells.RemoveCorruption
+    end
+
+    if not P4.AuraTracker:EveryoneHas(Feral.Buffs.MarkOfTheWild) then
+        P4.log("Lapka (someone does not have it)", P4.DEBUG)
+        return Feral.Spells.MarkOfTheWild
     end
 
     if (ironFurStacks or 0) < DESIRED_IRON_FUR_STACKS and P4.IsSpellReady(Guardian.Spells.Ironfur) and rage >= (IRON_FUR_COST + FR_COST) then -- Iron fur
@@ -54,16 +71,21 @@ Guardian.priority = function()
     end
 
     if not hasFrenzied and P4.IsSpellReady(Guardian.Spells.FrenziedRegeneration) and rage >= FR_COST then
-        if healthPercent < 50 then
+        if myHealth < 50 then
             --P4.log("Emergency Frenzied Regeneration")
             return Guardian.Spells.FrenziedRegeneration
-        elseif not hasBarkskin and not hasRageOfSleeper and not hasSurvivalInstincts and healthPercent < 75 then
+        elseif not hasBarkskin and not hasRageOfSleeper and not hasSurvivalInstincts and myHealth < 75 then
             --P4.log("Fallback Frenzied Regeneration")
             return Guardian.Spells.FrenziedRegeneration
         end
     end
 
-    if healthPercent < 85 then
+    if P4.IsItemReady(211879) and not P4.IsSpellReady(Guardian.Spells.FrenziedRegeneration) and myHealth < 50 then -- Algari Healing Potion
+        P4.log("HP POTION (<50%)", P4.DEBUG)
+        return P4.MacroSystem:GetMacroIDForMacro("HealingPotion")
+    end
+
+    if myHealth < 85 then
         if not hasFrenzied and not hasRageOfSleeper and not hasSurvivalInstincts and P4.IsSpellReady(Guardian.Spells.Barkskin) then
             --P4.log("Barkskin")
             return Guardian.Spells.Barkskin
@@ -74,7 +96,7 @@ Guardian.priority = function()
         end
     end
 
-    if healthPercent < 75 and not hasFrenzied and not hasBarkskin and not hasRageOfSleeper and P4.IsSpellReady(Guardian.Spells.SurvivalInstincts) then
+    if myHealth < 75 and not hasFrenzied and not hasBarkskin and not hasRageOfSleeper and P4.IsSpellReady(Guardian.Spells.SurvivalInstincts) then
         --P4.log("Survival Instincts")
         return Guardian.Spells.SurvivalInstincts
     end
