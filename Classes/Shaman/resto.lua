@@ -64,7 +64,7 @@ RSham.Buffs = {
     Riptide = 61295, -- hot effect
     TidalWaves = 53390, -- 2 stacks here
     HighTide = 288675, -- Buffed Chain heal
-    Downpour = 288675, -- Downpour can be cast
+    Downpour = 462488, -- Downpour can be cast
     MasterOfTheElements = 462377, -- Buffed Healing Surge
     Undulation = 216251, -- Buffed Healing Wave & Healing Surge
     LavaSurge = 77762, -- Free Lava Burst
@@ -173,11 +173,11 @@ RSham.priority = function()
         return RSham.Spells.UnleashLife
     end
 
-    -- Consume Downpour (BUGGY)
-    --[[if hasDownpour and lowHealthCount >= 3 then
+    -- Consume Downpour
+    if hasDownpour --[[and lowHealthCount >= 3]] then
         P4.log("Surging Totem (Consume Downpour)", P4.DEBUG)
         return RSham.Spells.SurgingTotem
-    end]]
+    end
 
     -- Chain Heal if High Tide procced
     if hasHighTide and lowHealthCount >= 3 then
