@@ -3,6 +3,7 @@ P4.AuraTracker = {}
 
 local AT = P4.AuraTracker
 AT.unitAuras = {}
+AT.guidToUnit = {}
 
 local LibDispel = LibStub("LibDispel-1.0")
 local bleedList = LibDispel:GetBleedList()
@@ -12,8 +13,8 @@ local badDebuffs = {
     [472197] = true, -- One-Armed Bandit | Withering Flames
     [164812] = true, -- MOONFIRE
 }
--- NIGGA THESE DEBUFFS ARE *TOXIC* TO MY WORKFLOW
--- HAHAHA, I LOVE THIS LITTLE FELLA
+-- THESE DEBUFFS ARE *TOXIC* TO MY WORKFLOW NIGGA
+-- Hahaha i love this little fella
 
 P4.Debuff = {
     Magic = "Magic",
@@ -31,16 +32,27 @@ P4.Debuff = {
 
 local eventFrame = CreateFrame("Frame")
 
-local function EnsureUnitTable(unit)
-    if not AT.unitAuras[unit] then
-        AT.unitAuras[unit] = {}
+local function EnsureUnitTable(guid)
+    if not AT.unitAuras[guid] then
+        AT.unitAuras[guid] = {}
     end
-    return AT.unitAuras[unit]
+    return AT.unitAuras[guid]
+end
+
+local function TrackGUID(unit)
+    local guid = UnitGUID(unit)
+    if guid then
+        AT.guidToUnit[guid] = unit
+    end
+    return guid
 end
 
 -- Full aura scan using C_UnitAuras
 local function FullAuraScan(unit)
-    local auras = EnsureUnitTable(unit)
+    local guid = TrackGUID(unit)
+    if not guid then return end
+
+    local auras = EnsureUnitTable(guid)
     wipe(auras)
 
     for index = 1, 255 do
@@ -77,11 +89,34 @@ local function FullGroupRescan()
     end
 end
 
--- Event handler
+local function CleanupOrphanedGUIDs()
+    local currentGUIDs = {}
+    if P4.GroupTracker and P4.GroupTracker.units then
+        for _, unit in ipairs(P4.GroupTracker.units) do
+            local guid = UnitGUID(unit)
+            if guid then
+                currentGUIDs[guid] = true
+            end
+        end
+    end
+
+    -- Clean aura + reverse map
+    for guid in pairs(AT.unitAuras) do
+        if not currentGUIDs[guid] then
+            AT.unitAuras[guid] = nil
+            AT.guidToUnit[guid] = nil
+        end
+    end
+end
+
+
 eventFrame:SetScript("OnEvent", function(_, event, unit, updateInfo)
     if event == "UNIT_AURA" then
         if not unit or not UnitIsPlayer(unit) then return end
-        local auras = EnsureUnitTable(unit)
+        local guid = TrackGUID(unit)
+        if not guid then return end
+
+        local auras = EnsureUnitTable(guid)
 
         if not updateInfo or updateInfo.isFullUpdate then
             FullAuraScan(unit)
@@ -120,9 +155,13 @@ eventFrame:SetScript("OnEvent", function(_, event, unit, updateInfo)
     elseif event == "PLAYER_ENTERING_WORLD" or
            event == "GROUP_ROSTER_UPDATE" or
            event == "ZONE_CHANGED_NEW_AREA" then
-        C_Timer.After(1.0, FullGroupRescan)
+        C_Timer.After(1.0, function()
+            FullGroupRescan()
+            CleanupOrphanedGUIDs()
+        end)
     end
 end)
+
 
 eventFrame:RegisterEvent("UNIT_AURA")
 eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -132,6 +171,14 @@ eventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 ------------------------------------------------
 -- Public API
 ------------------------------------------------
+
+-- Convert unit or guid to guid
+function AT:GetGUID(unitOrGUID)
+    if type(unitOrGUID) == "string" and unitOrGUID:find("^Player%-") then
+        return unitOrGUID
+    end
+    return UnitGUID(unitOrGUID)
+end
 
 function AT:EveryoneHas(spellId)
     for _, unit in ipairs(P4.GroupTracker:GetUnitsInRange() or {}) do
@@ -144,7 +191,7 @@ end
 
 function AT:WhoHas(spellId)
     local result = {}
-    for _, unit in ipairs(P4.GroupTracker.units:GetUnitsInRange() or {}) do
+    for _, unit in ipairs(P4.GroupTracker:GetUnitsInRange() or {}) do
         if self:UnitHas(unit, spellId) then
             table.insert(result, unit)
         end
@@ -152,19 +199,22 @@ function AT:WhoHas(spellId)
     return result
 end
 
-function AT:UnitHas(unit, spellId)
-    local aura = self.unitAuras[unit] and self.unitAuras[unit][spellId]
+function AT:UnitHas(unitOrGUID, spellId)
+    local guid = self:GetGUID(unitOrGUID)
+    if not guid then return false end
+
+    local aura = self.unitAuras[guid] and self.unitAuras[guid][spellId]
     if aura then
         return true, aura.expiration, aura.stacks
     end
     return false
 end
 
--- Will return a {Curse, Disease, Magic, Poison, Bleed} if any of those are present on `unit`
-function AT:GetActiveDebuffTypes(unit)
-    if not UnitExists(unit) then return {} end
+function AT:GetActiveDebuffTypes(unitOrGUID)
+    local guid = self:GetGUID(unitOrGUID)
+    if not guid then return {} end
 
-    local auras = self.unitAuras[unit]
+    local auras = self.unitAuras[guid]
     if not auras then return {} end
 
     local result = {}
@@ -172,14 +222,12 @@ function AT:GetActiveDebuffTypes(unit)
 
     for spellId, aura in pairs(auras) do
         if not aura.isHelpful and not badDebuffs[spellId] then
-            -- Basic dispellable types
             local dispelType = aura.dispelName
             if dispelType and P4.Debuff[dispelType] and not found[dispelType] then
                 table.insert(result, dispelType)
                 found[dispelType] = true
             end
 
-            -- Bleeds
             if bleedList[spellId] and not found[P4.Debuff.Bleed] then
                 table.insert(result, P4.Debuff.Bleed)
                 found[P4.Debuff.Bleed] = true
