@@ -1,4 +1,4 @@
 _, P4 = ...
-Druid = {}
-Druid.specs = {}
-P4.classTable[11] = Druid
+Warrior = {}
+Warrior.specs = {}
+P4.classTable[1] = Warrior

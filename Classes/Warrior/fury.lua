@@ -1,114 +1,75 @@
-Guardian = {}
-Druid.specs[3] = Guardian
+Fury = {}
+Warrior.specs[2] = Fury
 
-Guardian.Macros = {
+Fury.Macros = {
 }
 
-Guardian.Setup = function ()
+Fury.Setup = function ()
 end
 
-Guardian.Spells = {
-    RemoveCorruption = 2782,
-    Ironfur = 192081,
-    FrenziedRegeneration = 22842,
-    Barkskin = 22812,
-    RageOfTheSleeper = 200851,
-    SurvivalInstincts = 61336,
+Fury.Spells = {
+    BattleShout = 6673,
+    BerserkerRage = 18499,
+    SpellReflection = 23920,
+    BerserkerStance = 386196,
+    RallyingCry = 97462,
+    DefensiveStance = 386208,
+    EnragedRegeneration = 184364,
+    ImpendingVictory = 202168,
 }
 
-Guardian.Buffs = {
-    FrenziedRegeneration = 22842,
-    Barkskin = 22812,
-    RageOfTheSleeper = 200851,
-    SurvivalInstincts = 61336,
-    Ironfur = 192081,
+Fury.Buffs = {
+    BattleShout = 6673,
+    BerserkerRage = 18499,
+    SpellReflection = 23920,
+    BerserkerStance = 386196,
+    DefensiveStance = 386208,
+    RallyingCry = 97463,
+    EnragedRegeneration = 184364,
 }
 
-Guardian.priority = function()
-    local DESIRED_IRON_FUR_STACKS = 7
-    local IRON_FUR_COST = 40
-    local FR_COST = 10
-
+Fury.priority = function()
     local rage = UnitPower("player", 1)
     local myHealth = 100 * (UnitHealth("player") / UnitHealthMax("player"))    
-    local targetmyHealth = 100 * (UnitHealth("target") / UnitHealthMax("target"))
-    local hasIronfur, _, ironFurStacks = P4.AuraTracker:UnitHas("player", Guardian.Buffs.Ironfur) -- Iron fur stacks
-    local hasFrenzied = P4.AuraTracker:UnitHas("player", Guardian.Buffs.FrenziedRegeneration)
-    local hasBarkskin = P4.AuraTracker:UnitHas("player", Guardian.Buffs.Barkskin)
-    local hasRageOfSleeper = P4.AuraTracker:UnitHas("player", Guardian.Buffs.RageOfTheSleeper)
-    local hasSurvivalInstincts = P4.AuraTracker:UnitHas("player", Guardian.Buffs.SurvivalInstincts)
-    local debuffsOnMe = P4.AuraTracker:GetActiveDebuffTypes("player")
+    local targetHealth = 100 * (UnitHealth("target") / UnitHealthMax("target"))
+    local berserkerRageReady = P4.IsSpellReady(Fury.Spells.BerserkerRage)
+    local hasBerserkerRage = P4.AuraTracker:UnitHas("player", Fury.Buffs.BerserkerRage)
+    local spellReflectionReady = P4.IsSpellReady(Fury.Spells.SpellReflection)
+    local berserkerStanceReady = P4.IsSpellReady(Fury.Spells.BerserkerStance)
+    local hasBerserkerStance = P4.AuraTracker:UnitHas("player", Fury.Buffs.BerserkerStance)
+    local defensiveStanceReady = P4.IsSpellReady(Fury.Spells.DefensiveStance)
+    local hasDefensiveStance = P4.AuraTracker:UnitHas("player", Fury.Buffs.DefensiveStance)
+    local rallyingCryReady = P4.IsSpellReady(Fury.Spells.RallyingCry)
+    local enragedRegenerationReady = P4.IsSpellReady(Fury.Spells.EnragedRegeneration)
+    local hasEnragedRegeneration = P4.AuraTracker:UnitHas("player", Fury.Buffs.EnragedRegeneration)
+    local impendingVictoryReady = P4.IsSpellReady(Fury.Spells.ImpendingVictory)
 
-
-    --[[if (tContains(debuffsOnMe, P4.Debuff.Curse) or tContains(debuffsOnMe, P4.Debuff.Poison)) and P4.IsSpellReady(Guardian.Spells.RemoveCorruption) then
-        return Guardian.Spells.RemoveCorruption
-    end]]
-
-    local debuffedUnit = P4.AuraTracker:GetUnitWithDebuff(P4.Debuff.Poison, P4.Debuff.Curse)
-    local dispelReady = P4.IsSpellReady(Feral.Spells.RemoveCorruption)
-    if debuffedUnit and not UnitIsUnit("focus", debuffedUnit) then
-            if dispelReady then
-                P4.log("Focus " .. tostring(debuffedUnit) .. " for dispel", P4.DEBUG)
-                return P4.MacroSystem:GetMacroIDForUnit(debuffedUnit)
-            end
-    end
-    if debuffedUnit and UnitIsUnit("focus", debuffedUnit) and dispelReady then
-      return Feral.Spells.RemoveCorruption
+    if not P4.AuraTracker:EveryoneHas(Fury.Buffs.BattleShout) then
+        P4.log("AP (someone does not have it)", P4.DEBUG)
+        return Fury.Spells.BattleShout
     end
 
-    if not P4.AuraTracker:EveryoneHas(Feral.Buffs.MarkOfTheWild) then
-        P4.log("Lapka (someone does not have it)", P4.DEBUG)
-        return Feral.Spells.MarkOfTheWild
+    if myHealth > 50 and berserkerStanceReady and not hasBerserkerStance then
+        return Fury.Spells.BerserkerStance
     end
 
-    if (ironFurStacks or 0) < DESIRED_IRON_FUR_STACKS and P4.IsSpellReady(Guardian.Spells.Ironfur) and rage >= (IRON_FUR_COST + FR_COST) then -- Iron fur
-        --P4.log("Defensive Iron Fur")
-        return Guardian.Spells.Ironfur
-    end
-    if rage > 90 and P4.IsSpellReady(Guardian.Spells.Ironfur) then
-        --P4.log("Dumping Iron Fur")
-        return Guardian.Spells.Ironfur
+    if myHealth < 70 and impendingVictoryReady and rage > 9 then
+        return Fury.Spells.ImpendingVictory
     end
 
-    if not hasFrenzied and P4.IsSpellReady(Guardian.Spells.FrenziedRegeneration) and rage >= FR_COST then
-        if myHealth < 50 then
-            --P4.log("Emergency Frenzied Regeneration")
-            return Guardian.Spells.FrenziedRegeneration
-        elseif not hasBarkskin and not hasRageOfSleeper and not hasSurvivalInstincts and myHealth < 75 then
-            --P4.log("Fallback Frenzied Regeneration")
-            return Guardian.Spells.FrenziedRegeneration
+    if myHealth <= 50 then
+        if P4.IsItemReady(211879) then -- Algari Healing Potion
+            P4.log("HP POTION (<50%)", P4.DEBUG)
+            return P4.MacroSystem:GetMacroIDForMacro("HealingPotion")
+        elseif enragedRegenerationReady then
+            return Fury.Spells.EnragedRegeneration
+        elseif not hasFrenziedRegeneration and not hasDefensiveStance then
+            return Fury.Spells.DefensiveStance
         end
     end
 
-    if P4.IsItemReady(211879) and not P4.IsSpellReady(Guardian.Spells.FrenziedRegeneration) and myHealth < 50 then -- Algari Healing Potion
-        P4.log("HP POTION (<50%)", P4.DEBUG)
-        return P4.MacroSystem:GetMacroIDForMacro("HealingPotion")
-    end
-
-    if myHealth < 85 then
-        if not hasFrenzied and not hasRageOfSleeper and not hasSurvivalInstincts and P4.IsSpellReady(Guardian.Spells.Barkskin) then
-            --P4.log("Barkskin")
-            return Guardian.Spells.Barkskin
-        end
-        if not hasFrenzied and not hasBarkskin and not hasSurvivalInstincts and P4.IsSpellReady(Guardian.Spells.RageOfTheSleeper) then
-            --P4.log("Rage of the Sleeper")
-            return Guardian.Spells.RageOfTheSleeper
-        end
-    end
-
-    if myHealth < 75 and not hasFrenzied and not hasBarkskin and not hasRageOfSleeper and P4.IsSpellReady(Guardian.Spells.SurvivalInstincts) then
-        --P4.log("Survival Instincts")
-        return Guardian.Spells.SurvivalInstincts
-    end
-    
-    if P4.TankbusterDanger() then
-        if not hasBarkskin and P4.IsSpellReady(Guardian.Spells.Barkskin) then
-            return Guardian.Spells.Barkskin
-        elseif not hasRageOfSleeper and P4.IsSpellReady(Guardian.Spells.RageOfTheSleeper) then
-            return Guardian.Spells.RageOfTheSleeper
-        elseif not hasSurvivalInstincts and P4.IsSpellReady(Guardian.Spells.SurvivalInstincts) then
-            return Guardian.Spells.SurvivalInstincts
-        end
+    if myHealth < 30 and rallyingCryReady then
+            return Fury.Spells.RallyingCry
     end
 
     return nil

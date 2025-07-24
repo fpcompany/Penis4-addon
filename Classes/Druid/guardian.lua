@@ -33,7 +33,7 @@ Guardian.priority = function()
 
     local rage = UnitPower("player", 1)
     local myHealth = 100 * (UnitHealth("player") / UnitHealthMax("player"))    
-    local targetmyHealth = 100 * (UnitHealth("target") / UnitHealthMax("target"))
+    local targetHealth = 100 * (UnitHealth("target") / UnitHealthMax("target"))
     local hasIronfur, _, ironFurStacks = P4.AuraTracker:UnitHas("player", Guardian.Buffs.Ironfur) -- Iron fur stacks
     local hasFrenzied = P4.AuraTracker:UnitHas("player", Guardian.Buffs.FrenziedRegeneration)
     local hasBarkskin = P4.AuraTracker:UnitHas("player", Guardian.Buffs.Barkskin)
