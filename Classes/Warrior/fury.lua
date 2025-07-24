@@ -14,7 +14,6 @@ Guardian.Spells = {
     Barkskin = 22812,
     RageOfTheSleeper = 200851,
     SurvivalInstincts = 61336,
-    MarkOfTheWild = 1126,
 }
 
 Guardian.Buffs = {
@@ -23,7 +22,6 @@ Guardian.Buffs = {
     RageOfTheSleeper = 200851,
     SurvivalInstincts = 61336,
     Ironfur = 192081,
-    MarkOfTheWild = 1126,
 }
 
 Guardian.priority = function()
@@ -42,22 +40,25 @@ Guardian.priority = function()
     local debuffsOnMe = P4.AuraTracker:GetActiveDebuffTypes("player")
 
 
-    local dispelReady = P4.IsSpellReady(Guardian.Spells.RemoveCorruption)
-    local debuffedUnit = dispelReady and P4.AuraTracker:GetUnitWithDebuff(P4.Debuff.Curse, P4.Debuff.Poison)
-    
-    -- Focusing logic
-    local action = P4.GetTarget(debuffedUnit)
-    if action then return action end
-
-    -- Dispel the debuffed unit
-    if debuffedUnit then -- if we are here, this means debuffed unit is in focus, no need to check
-        P4.log("Purify Spirit on " .. tostring(debuffedUnit), P4.DEBUG)
+    --[[if (tContains(debuffsOnMe, P4.Debuff.Curse) or tContains(debuffsOnMe, P4.Debuff.Poison)) and P4.IsSpellReady(Guardian.Spells.RemoveCorruption) then
         return Guardian.Spells.RemoveCorruption
+    end]]
+
+    local debuffedUnit = P4.AuraTracker:GetUnitWithDebuff(P4.Debuff.Poison, P4.Debuff.Curse)
+    local dispelReady = P4.IsSpellReady(Feral.Spells.RemoveCorruption)
+    if debuffedUnit and not UnitIsUnit("focus", debuffedUnit) then
+            if dispelReady then
+                P4.log("Focus " .. tostring(debuffedUnit) .. " for dispel", P4.DEBUG)
+                return P4.MacroSystem:GetMacroIDForUnit(debuffedUnit)
+            end
+    end
+    if debuffedUnit and UnitIsUnit("focus", debuffedUnit) and dispelReady then
+      return Feral.Spells.RemoveCorruption
     end
 
-    if not P4.AuraTracker:EveryoneHas(Guardian.Buffs.MarkOfTheWild) then
+    if not P4.AuraTracker:EveryoneHas(Feral.Buffs.MarkOfTheWild) then
         P4.log("Lapka (someone does not have it)", P4.DEBUG)
-        return Guardian.Spells.MarkOfTheWild
+        return Feral.Spells.MarkOfTheWild
     end
 
     if (ironFurStacks or 0) < DESIRED_IRON_FUR_STACKS and P4.IsSpellReady(Guardian.Spells.Ironfur) and rage >= (IRON_FUR_COST + FR_COST) then -- Iron fur
