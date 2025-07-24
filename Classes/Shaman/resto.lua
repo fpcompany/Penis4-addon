@@ -4,208 +4,183 @@ Shaman.specs[3] = RSham
 RSham.Macros = {
 }
 
-local function allyTargeted()
-    return 
-        UnitIsPlayer("target") and 
-        (
-            UnitIsUnit("target", "player") or 
-            UnitInParty("target") or 
-            UnitInRaid("target")
-        )
-end
-
-local function unitHealthPercentage(unit)
-    local current = UnitHealth(unit)
-    local max = UnitHealthMax(unit)
-    if max == 0 then
-        return 0
-    end
-    return (current / max) * 100
-end
-
-local function unitManaPercentage(unit)
-    local current = UnitPower("player", 0)
-    local max = UnitPowerMax("player", 0)
-    if max == 0 then
-        return 0
-    end
-    return (current / max) * 100
-end
-
-local function targetIsTank()
-    local role = UnitGroupRolesAssigned("focus")
-    return role == "TANK"
-end
-
-
 RSham.Spells = {
-    HealingWave = 77472,
-    Riptide = 61295,
-    HealingSurge = 8004,
-    HealingStreamTotem = 5394,
-    EarthShield = 974,
-    ChainHeal = 1064,
-    SurgingTotem = 444995,
-    LavaBurst = 51505,
-    UnleashLife = 73685, -- next healing spell buffed
-    CloudburstTotem = 157153, -- 2 charges, 39 sec cooldown
-    EarthenWallTotem = 198838, -- 54 sec cooldown
-    TotemicRecall = 108285, -- last totem cooldown reset, 2 min cooldown
-    Wellspring = 197995, -- frontal cone heal
-    HealingTideTotem = 108280, -- aoe heal every 1.9 sec, 2.2 min cooldown
-    BulwarkTotem = 108270, -- shield self, 2.9 min cooldown
-    Spiritwalker = 79206, -- cast when moving for 15 seconds, 1.5 min cooldown
-    PurifySpirit = 77130, -- Dispel
-    Skyfury = 462854, -- Mastery buff & 20% multistrike
+    HealingWave = 77472,        -- inexpensive slow heal
+    Riptide = 61295,            -- hot effect
+    HealingSurge = 8004,        -- expensive fast heal
+    HealingStreamTotem = 5394,  -- auto-heals an ally every 1.8 sec
+    EarthShield = 974,          -- affected ally heals when takes damage
+    ChainHeal = 1064,           -- autotarget aoe heal
+    SurgingTotem = 444995,      -- core totemic talent, replaces healing rain
+    LavaBurst = 51505,          -- single target nuke
+    UnleashLife = 73685,        -- next healing spell buffed
+    CloudburstTotem = 157153,   -- 2 charges, 39 sec cooldown
+    EarthenWallTotem = 198838,  -- 54 sec cooldown
+    TotemicRecall = 108285,     -- last totem cooldown reset, 2 min cooldown
+    Wellspring = 197995,        -- frontal cone heal
+    HealingTideTotem = 108280,  -- aoe heal every 1.9 sec, 2.2 min cooldown
+    BulwarkTotem = 108270,      -- shield self, 2.9 min cooldown
+    Spiritwalker = 79206,       -- cast when moving for 15 seconds, 1.5 min cooldown
+    PurifySpirit = 77130,       -- Dispel
+    Skyfury = 462854,           -- Mastery buff & 20% multistrike
 }
 
 RSham.Buffs = {
-    EarthShield = 383648,
-    Riptide = 61295, -- hot effect
-    TidalWaves = 53390, -- 2 stacks here
-    HighTide = 288675, -- Buffed Chain heal
-    Downpour = 462488, -- Downpour can be cast
-    MasterOfTheElements = 462377, -- Buffed Healing Surge
-    Undulation = 216251, -- Buffed Healing Wave & Healing Surge
-    LavaSurge = 77762, -- Free Lava Burst
-    Skyfury = 462854, -- Mastery buff & 20% multistrike
+    EarthShield = 383648,       -- shield effect ON ME
+    EarthShieldALLY = 974,      -- shield effect ON ALLIES
+    Riptide = 61295,            -- hot effect
+    TidalWaves = 53390,         -- 2 stacks here
+    HighTide = 288675,          -- Buffed Chain heal
+    Downpour = 462488,          -- Downpour can be cast
+    MasterOTElements = 462377,  -- Buffed Healing Surge
+    Undulation = 216251,        -- Buffed Healing Wave & Healing Surge
+    LavaSurge = 77762,          -- Free Lava Burst
+    Skyfury = 462854,           -- Mastery buff & 20% multistrike
 }
 
 RSham.priority = function()
-    local myHealth = unitHealthPercentage("player")
-    local myMana = unitManaPercentage("player")
+    local healthMax = UnitHealthMax("player")
+    local myHealth = healthMax > 0 and 100 * (UnitHealth("player") / healthMax) or 0
+    local myMana = 100 * (UnitPower("player", 0) / UnitPowerMax("player", 0))
 
-    if myHealth <= 50 then -- 50% hp
+    --[[HEALING POTION]]
+    if myHealth <= 50 then
         if P4.IsItemReady(211879) then -- Algari Healing Potion
             P4.log("HP POTION (<50%)", P4.DEBUG)
             return P4.MacroSystem:GetMacroIDForMacro("HealingPotion")
         end
     end
-
+    
+    --[[MANA POTION]]
     if myMana <= 10 and P4.IsItemReady(212240) then -- 10% mana
         P4.log("MANA POTION (<10%)", P4.DEBUG)
         return P4.MacroSystem:GetMacroIDForMacro("ManaPotion")
     end
 
+    --[[BUFF]]
     if not P4.AuraTracker:EveryoneHas(RSham.Buffs.Skyfury) then
         P4.log("SKUF FURY (someone does not have it)", P4.DEBUG)
         return RSham.Spells.Skyfury
     end
 
-    -- TARGET SELECT LOGIC
-    local action, mostDamagedUnit, mduHealth, lowHealthCount, debuffedUnit = P4.GetHealingState(80, 80, RSham.Spells.PurifySpirit, P4.Debuff.Magic, P4.Debuff.Curse)
-    if action then return action end
-
-    if mduHealth <= 95 then -- Use Healing Stream Totem on cooldown for minor injuries
-        local nextHsTotem = P4.GetTimeUntilNextCharge(RSham.Spells.HealingStreamTotem)
-        local hsTotemReady = P4.IsSpellReady(RSham.Spells.HealingStreamTotem)
-
-        if not IsPlayerSpell(157153) -- Cloudburst Totem (if not talented)
-        and not P4.IsTotemActive(RSham.Spells.HealingStreamTotem) and hsTotemReady then
+    local unit = nil -- THIS UNIT WILL BE FOCUSED
+    local mostDamagedUnit, mduHealth = P4.GroupTracker:Get()
+    local lowHealthCount = P4.GroupTracker:CountBelowPercent(80)
+    local dispelReady = P4.IsSpellReady(RSham.Spells.PurifySpirit)
+    local debuffedUnit = dispelReady and P4.AuraTracker:GetUnitWithDebuff(P4.Debuff.Magic, P4.Debuff.Curse)
+    
+    --[[SHAMAN: Use Healing Stream Totem on cooldown for minor injuries]]
+    if mduHealth <= 95 and not IsPlayerSpell(RSham.Spells.CloudburstTotem) and not P4.IsTotemActive(RSham.Spells.HealingStreamTotem)then
+        if P4.IsSpellReady(RSham.Spells.HealingStreamTotem) then
             P4.log("Healing Stream Totem (not currently active)", P4.DEBUG)
             return RSham.Spells.HealingStreamTotem
         end
     end
 
+    if debuffedUnit then
+        unit = debuffedUnit
+    elseif mduHealth <= 80 then
+        unit = mostDamagedUnit
+    end
+
+    -- Keep Earth Shield on the tank. On allies, we use EarthShieldALLY which is the same as Spells.EarthShield
+    local tank = P4.GroupTracker:GetTank()
+    if tank and not P4.AuraTracker:UnitHas(tank, RSham.Buffs.EarthShieldALLY) then
+        if not UnitIsUnit("focus", tank) then
+            unit = tank -- override unit for ACTION so its gonna get focused instead of mdu/debuffedUnit
+        else
+            return RSham.Spells.EarthShield
+        end
+    end
+
+    -- Focusing logic
+    local action = P4.GetTarget(unit)
+    if action then return action end
+
+    -- Everyone is healthy and not debuffed / cant dispel yet, stop healing
     if mduHealth > 80 and not debuffedUnit then return nil end
 
     -- Dispel the debuffed unit
-    if debuffedUnit and UnitIsUnit("focus", debuffedUnit) then
+    if debuffedUnit then -- if we are here, this means debuffed unit is in focus, no need to check
         P4.log("Purify Spirit on " .. tostring(debuffedUnit), P4.DEBUG)
         return RSham.Spells.PurifySpirit
     end
 
     -- Healing Logic
-
-    local targetHealth = unitHealthPercentage("focus")
+    local targetHealthMax = UnitHealthMax("focus")
+    local targetHealth = targetHealthMax > 0 and 100 * (UnitHealth("focus") / targetHealthMax) or 0
     local cbtTotemReady = P4.IsSpellReady(RSham.Spells.CloudburstTotem)
     local htTotemReady = P4.IsSpellReady(RSham.Spells.HealingTideTotem)
     local hasTidalWaves = P4.AuraTracker:UnitHas("player", RSham.Buffs.TidalWaves)
     local hasHighTide = P4.AuraTracker:UnitHas("player", RSham.Buffs.HighTide)
     local hasDownpour = P4.AuraTracker:UnitHas("player", RSham.Buffs.Downpour)
-    local hasMasterOfTheElements = P4.AuraTracker:UnitHas("player", RSham.Buffs.MasterOfTheElements)
+    local hasMasterOTElements = P4.AuraTracker:UnitHas("player", RSham.Buffs.MasterOTElements)
     local hasUndulation = P4.AuraTracker:UnitHas("player", RSham.Buffs.Undulation)
     local hasLavaSurge = P4.AuraTracker:UnitHas("player", RSham.Buffs.LavaSurge)
     local targetHasRiptide = P4.AuraTracker:UnitHas("focus", RSham.Buffs.Riptide)
     local unleashLifeReady = P4.IsSpellReady(RSham.Spells.UnleashLife)
     local wellspringReady = P4.IsSpellReady(RSham.Spells.Wellspring)
     local earthenWallTotemReady = P4.IsSpellReady(RSham.Spells.EarthenWallTotem)
-    local masterOfTheElementsLearned = IsPlayerSpell(462375)
+    local MasterOTElementsLearned = IsPlayerSpell(462375)
     local ancestralReachLearned = IsPlayerSpell(382732)
     local spiritwalkerReady = P4.IsSpellReady(RSham.Spells.Spiritwalker)
 
     -- Need to disable Hekili's Spiritwalker's grace recommendation
     if IsPlayerMoving() and spiritwalkerReady then
-        P4.log("Spiritwalker's grace (moving)", P4.DEBUG)
         return RSham.Spells.Spiritwalker
     end
 
     -- Protect self if party is in a pinch
     if P4.IsSpellReady(RSham.Spells.BulwarkTotem) and
-    ((myHealth <= 70 and lowHealthCount >= 3) or
-        (myHealth <= 70 and lowHealthCount >= 2 and mduHealth <= 50)) then
-            P4.log("Bulwark totem (save self)", P4.DEBUG)
+        ((myHealth <= 70 and lowHealthCount >= 3) or
+        (myHealth <= 70 and lowHealthCount >= 2 and mduHealth <= 50) or
+        myHealth <= 30) then
             return RSham.Spells.BulwarkTotem
     end
 
-    --CBT Totem
+    -- CBT Totem
     if cbtTotemReady and not P4.IsTotemActiveByName(RSham.Spells.CloudburstTotem) then
-        P4.log("CBT totem (not active)", P4.DEBUG)
         return RSham.Spells.CloudburstTotem
     end
 
     -- Generate Master of the elements with incast lava burst (only if target is attackable)
-    if mduHealth >= 70 and masterOfTheElementsLearned and not hasMasterOfTheElements and hasLavaSurge 
+    if mduHealth >= 70 and MasterOTElementsLearned and not hasMasterOTElements and hasLavaSurge 
         and UnitExists("target") and UnitCanAttack("player", "target")then
-        P4.log("Lava Burst (consume lava surge)", P4.DEBUG)
         return RSham.Spells.LavaBurst
     end
 
-    -- Keep Earth Shield on the tank
-    --[[if targetIsTank() and not P4.AuraTracker:UnitHas("target", RSham.Buffs.EarthShield) then
-        P4.log("Rebuff Earth Shield on Tank", P4.DEBUG)
-        return RSham.Spells.EarthShield
-    end]]
-
     -- Unleash life to buff heals
-    if unleashLifeReady then
-        P4.log("Unleash Life (on cooldown)", P4.DEBUG)
+    if unleashLifeReady and mduHealth <= 60 then
         return RSham.Spells.UnleashLife
     end
 
     -- Consume Downpour
     if hasDownpour --[[and lowHealthCount >= 3]] then
-        P4.log("Surging Totem (Consume Downpour)", P4.DEBUG)
         return RSham.Spells.SurgingTotem
     end
 
     -- Chain Heal if High Tide procced
-    if hasHighTide and lowHealthCount >= 3 then
-        P4.log("Chain Heal (has High Tide and 3 people injired)", P4.DEBUG)
+    if hasHighTide and lowHealthCount >= 2 then
         return RSham.Spells.ChainHeal
     end
     
     -- Use Wellspring after AOE
     if wellspringReady and lowHealthCount >= 4 then
-        P4.log("Wellspring (4 players are hurt)", P4.DEBUG)
         return RSham.Spells.Wellspring
     end
 
     -- Use Healing Tide totem after AOE
     if htTotemReady and lowHealthCount >= 4 then
-        P4.log("Healing Tide Totem (4 players are hurt)", P4.DEBUG)
         return RSham.Spells.HealingTideTotem
     end
 
     -- Buffed Healing Surge
-    if hasMasterOfTheElements then
-        P4.log("Healing Surge (Consume Master of the Elements)", P4.DEBUG)
+    if hasMasterOTElements then
         return RSham.Spells.HealingSurge
     end
 
     -- Use Riptide if available and target not affected by Riptide, or if dont have Tidal Waves stacks
     if P4.IsSpellReady(RSham.Spells.Riptide) and (not targetHasRiptide or not hasTidalWaves) then
-        P4.log("Riptide (tidal = " .. tostring(hasTidalWaves) .. ", has buff = " .. tostring(targetHasRiptide) .. ")", P4.DEBUG)
         return RSham.Spells.Riptide
     end
 
@@ -216,22 +191,22 @@ RSham.priority = function()
 
     -- Consume Undulation
     if hasUndulation then
-        P4.log("Healing Surge (consume Undulation)", P4.DEBUG)
         return RSham.Spells.HealingSurge
     end
 
     -- If 3 or more people are injured, use Chain Heal
     if ancestralReachLearned and lowHealthCount > 3 then
-        P4.log("Chain Heal (at least 3 party members)", P4.DEBUG)
         return RSham.Spells.ChainHeal
     end
 
+    -- Fall back
     if mduHealth >= 70 and lowHealthCount <= 2 then 
         return RSham.Spells.HealingWave
     else
         return RSham.Spells.HealingSurge
     end
 
+    -- Should never reach this point
     return nil
 end
 

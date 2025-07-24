@@ -5,6 +5,7 @@ local GT = P4.GroupTracker
 GT.units = {}
 GT.healthData = {}
 GT.mostDamagedUnit = nil
+GT.currentTank = nil  -- Store the current tank unit here
 
 local eventFrame = CreateFrame("Frame")
 
@@ -38,7 +39,6 @@ local function UpdateUnitHealth(unit)
         local absorb = UnitGetTotalHealAbsorbs(unit) or 0
 
         if maxHp > 0 then
-            -- Cap effective HP at maxHP to avoid negative values
             local effectiveHP = math.max(hp - absorb, 0)
             GT.healthData[unit] = effectiveHP / maxHp
         else
@@ -70,9 +70,20 @@ local function UpdateAllHealth()
     GT:UpdateMostDamaged()
 end
 
+function GT:UpdateTank()
+    self.currentTank = nil
+    for _, unit in ipairs(self.units) do
+        if UnitGroupRolesAssigned(unit) == "TANK" and UnitCanAssist("player", unit) then
+            self.currentTank = unit
+            break
+        end
+    end
+end
+
 eventFrame:SetScript("OnEvent", function(_, event, arg1)
     if event == "GROUP_ROSTER_UPDATE" or event == "PLAYER_ENTERING_WORLD" then
         UpdateGroupUnits()
+        GT:UpdateTank()       -- Update tank on group changes
         UpdateAllHealth()
     elseif event == "UNIT_HEALTH" or event == "UNIT_MAXHEALTH" then
         if tContains(GT.units, arg1) then
@@ -91,14 +102,20 @@ function GT:Get()
     return self.mostDamagedUnit or nil, (GT.healthData[self.mostDamagedUnit] or 1) * 100
 end
 
--- Print a list of tracked units and their health % to chat
-function GT:PrintHealthList()
+function GT:GetTank()
+    return self.currentTank
+end
+
+function GT:PrintGroup()
     for _, unit in ipairs(self.units) do
         local hpPercent = self.healthData[unit]
+        local role = UnitGroupRolesAssigned(unit)
+        local roleDisplay = role ~= "NONE" and role or "?"
+        
         if hpPercent then
-            print(unit .. " | " .. math.floor(hpPercent * 100) .. "%")
+            print(unit .. " | " .. math.floor(hpPercent * 100) .. "% | " .. roleDisplay)
         else
-            print(unit .. " | " .. "N/A")
+            print(unit .. " | N/A | " .. roleDisplay)
         end
     end
 end

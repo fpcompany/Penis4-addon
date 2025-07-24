@@ -10,8 +10,8 @@ local bleedList = LibDispel:GetBleedList()
 
 -- SAY THE LINE HEALERJAK
 local badDebuffs = {
-    [472197] = true, -- One-Armed Bandit | Withering Flames
-    [164812] = true, -- MOONFIRE
+    [472197] = true,    -- Liberation of Undermine     | One-Armed Bandit      | Withering Flames
+    [473713] = true,    -- Floodgate                   | Keeza Quickfuse       | Kinetic Explosive Gel
 }
 -- THESE DEBUFFS ARE *TOXIC* TO MY WORKFLOW NIGGA
 -- Hahaha i love this little fella
@@ -83,7 +83,7 @@ end
 local function FullGroupRescan()
     if not P4.GroupTracker or not P4.GroupTracker.units then return end
     for _, unit in ipairs(P4.GroupTracker.units) do
-        if UnitExists(unit) and UnitIsConnected(unit) and UnitIsPlayer(unit) then
+        if UnitExists(unit) and UnitIsConnected(unit) --[[and UnitIsPlayer(unit)]] then
             FullAuraScan(unit)
         end
     end
@@ -112,7 +112,7 @@ end
 
 eventFrame:SetScript("OnEvent", function(_, event, unit, updateInfo)
     if event == "UNIT_AURA" then
-        if not unit or not UnitIsPlayer(unit) then return end
+        if not unit --[[or not UnitIsPlayer(unit)]] then return end
         local guid = TrackGUID(unit)
         if not guid then return end
 
@@ -174,7 +174,7 @@ eventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 
 -- Convert unit or guid to guid
 function AT:GetGUID(unitOrGUID)
-    if type(unitOrGUID) == "string" and unitOrGUID:find("^Player%-") then
+    if type(unitOrGUID) == "string" and (unitOrGUID:find("^Player%-") or unitOrGUID:find("^Vehicle%-")) then
         return unitOrGUID
     end
     return UnitGUID(unitOrGUID)

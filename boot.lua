@@ -59,6 +59,12 @@ local update = function(indicator, source)
                 break
             end
         end
+    else
+        if Hekili.Class.abilities[spell] then 
+            P4.log("Hekili >> " .. tostring(spell) .. " = " .. tostring(Hekili.Class.abilities[spell].key), P4.DEBUG, source)
+        else
+            P4.log("Hekili >> " .. tostring(spell) .. " = ???", P4.DEBUG, source)
+        end
     end
 
     -- macro override

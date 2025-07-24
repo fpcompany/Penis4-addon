@@ -118,6 +118,7 @@ function P4.IsItemReady(itemID)
 end
 
 -- Returns: [ACTION] [MOST DAMAGED UNIT] [MOST DAMAGED UNIT HP] [COUNT OF DAMAGED PARTY MEMBERS] [DEBUFFED UNIT ONLY IF CAN DISPEL]
+-- Bad idea. Need to remake. Lets split debuff and heal logic? GetHealingTarget and GetDispelTarget. 
 function P4.GetHealingState(low_hp_percent, party_low_hp_percent, dispelID, ...)
     local debuffTypes = ...
     local mostDamagedUnit, mduHealth = P4.GroupTracker:Get()
@@ -145,6 +146,18 @@ function P4.GetHealingState(low_hp_percent, party_low_hp_percent, dispelID, ...)
     end
 
     return action, mostDamagedUnit, mduHealth, lowHealthCount, (debuffedUnit and dispelReady) and debuffedUnit or nil
+end
+
+function P4.GetTarget(unit)
+    if UnitExists("focus") and not unit then
+        P4.log("Clear focus", P4.DEBUG)
+        return P4.MacroSystem:GetMacroIDForMacro("FocusClear") -- need to clear focus
+    end
+    if unit and not UnitIsUnit("focus", unit) then
+        P4.log("Focus " .. unit, P4.DEBUG)
+        return P4.MacroSystem:GetMacroIDForUnit(unit) -- need to focus unit
+    end
+    return nil -- no action needed
 end
 
 -- Move to skill tracker?
