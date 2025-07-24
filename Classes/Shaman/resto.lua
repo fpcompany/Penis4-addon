@@ -100,6 +100,15 @@ RSham.priority = function()
     -- Everyone is healthy and not debuffed / cant dispel yet, stop healing
     if mduHealth > 80 and not debuffedUnit then return nil end
 
+    -- Fireblood (Poison, Disease, Curse, Magic, Bleed)
+    -- Shaman's dispel removes Magic and Curse
+    local firebloodReady = P4.IsSpellReady(Common.Spells.Fireblood)
+    local debuffsOnMe = P4.AuraTracker:GetActiveDebuffTypes("player")
+    if firebloodReady and (tContains(debuffsOnMe, P4.Debuff.Poison) or tContains(debuffsOnMe, P4.Debuff.Disease) or tContains(debuffsOnMe, P4.Debuff.Bleed)
+        --[[or not dispelReady and tContains(debuffsOnMe, P4.Debuff.Magic) or tContains(debuffsOnMe, P4.Debuff.Curse)]]) then
+        return Common.Spells.Fireblood
+    end
+
     -- Dispel the debuffed unit
     if debuffedUnit then -- if we are here, this means debuffed unit is in focus, no need to check
         P4.log("Purify Spirit on " .. tostring(debuffedUnit), P4.DEBUG)

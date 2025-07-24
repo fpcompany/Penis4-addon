@@ -14,6 +14,10 @@ Common.Macros = { --deprecated in favor of MacroSystem
     --[-95] = "P4TargetP5",
 }
 
+Common.Spells = {
+    Fireblood = 265221, -- Dark iron dwarf racial
+}
+
 local CreateVirtualMacro = function(name, macrotext)
     local frame = CreateFrame("Frame", nil, UIParent, "SecureHandlerStateTemplate")
     frame:SetSize(1, 1)

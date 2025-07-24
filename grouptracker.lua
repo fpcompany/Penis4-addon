@@ -39,6 +39,7 @@ local function UpdateUnitHealth(unit)
         local absorb = UnitGetTotalHealAbsorbs(unit) or 0
 
         if maxHp > 0 then
+            -- Cap effective HP at maxHP to avoid negative values
             local effectiveHP = math.max(hp - absorb, 0)
             GT.healthData[unit] = effectiveHP / maxHp
         else
@@ -103,7 +104,15 @@ function GT:Get()
 end
 
 function GT:GetTank()
-    return self.currentTank
+    local tank = self.currentTank
+    if tank 
+        and UnitExists(tank) 
+        and UnitIsConnected(tank) 
+        and UnitInRange(tank)
+    then
+        return tank
+    end
+    return nil
 end
 
 function GT:PrintGroup()
