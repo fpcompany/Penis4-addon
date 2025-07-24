@@ -17,11 +17,27 @@ Elem.Spells = {
 
 Elem.priority = function()
     local healthPercentPlayer = 100 * (UnitHealth("player") / UnitHealthMax("player"))
-    local debuffedUnit = P4.AuraTracker:GetUnitWithDebuff(P4.Debuff.Curse)
     local dispelReady = P4.IsSpellReady(Elem.Spells.CleanseSpirit)
+    local debuffedUnit = dispelReady and P4.AuraTracker:GetUnitWithDebuff(P4.Debuff.Curse)
+    
+    -- Focusing logic
+    local action = P4.GetTarget(debuffedUnit)
+    if action then return action end
 
     if healthPercentPlayer <= 60 and P4.IsSpellReady(Elem.Spells.StoneBulwarkTotem) then
         return Elem.Spells.StoneBulwarkTotem
+    end
+
+    -- Dispel the debuffed unit
+    if debuffedUnit then -- if we are here, this means debuffed unit is in focus, no need to check
+        P4.log("Purify Spirit on " .. tostring(debuffedUnit), P4.DEBUG)
+        return Elem.Spells.CleanseSpirit
+    end
+
+        --[[BUFF]]
+    if not P4.AuraTracker:EveryoneHas(RSham.Buffs.Skyfury) then
+        P4.log("SKUF FURY (someone does not have it)", P4.DEBUG)
+        return RSham.Spells.Skyfury
     end
 
     if healthPercentPlayer <= 50 then -- 50% hp
@@ -29,16 +45,6 @@ Elem.priority = function()
             P4.log("HP POTION (<50%)", P4.DEBUG)
             return P4.MacroSystem:GetMacroIDForMacro("HealingPotion")
         end
-    end
-
-    if debuffedUnit and not UnitIsUnit("focus", debuffedUnit) then
-        if dispelReady then
-            P4.log("Focus " .. tostring(debuffedUnit) .. " for dispel", P4.DEBUG)
-            return P4.MacroSystem:GetMacroIDForUnit(debuffedUnit)
-        end
-    end
-    if debuffedUnit and UnitIsUnit("focus", debuffedUnit) and dispelReady then
-        return Elem.Spells.CleanseSpirit
     end
 
     if healthPercentPlayer <= 49 and P4.IsSpellReady(Elem.Spells.AstralShift) then

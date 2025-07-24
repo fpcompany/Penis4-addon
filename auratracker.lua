@@ -182,7 +182,7 @@ end
 
 function AT:EveryoneHas(spellId)
     for _, unit in ipairs(P4.GroupTracker:GetUnitsInRange() or {}) do
-        if not self:UnitHas(unit, spellId) then
+        if not UnitIsDeadOrGhost(unit) and not self:UnitHas(unit, spellId) then
             return false
         end
     end
