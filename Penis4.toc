@@ -31,4 +31,6 @@ Classes\Shaman\resto.lua
 Classes\Shaman\elemental.lua
 Classes\Monk\monk.lua
 Classes\Monk\brewmaster.lua
+Classes\Warrior\warrior.lua
+Classes\Warrior\fury.lua
 boot.lua

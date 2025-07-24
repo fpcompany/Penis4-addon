@@ -43,21 +43,17 @@ Feral.priority = function()
     local hasBearForm = P4.AuraTracker:UnitHas("player", Feral.Buffs.BearForm)
     local debuffsOnMe = P4.AuraTracker:GetActiveDebuffTypes("player")
 
-
-    --[[if (tContains(debuffsOnMe, P4.Debuff.Curse) or tContains(debuffsOnMe, P4.Debuff.Poison)) and P4.IsSpellReady(Feral.Spells.RemoveCorruption) then
-        return Feral.Spells.RemoveCorruption
-    end]]
-
-    local debuffedUnit = P4.AuraTracker:GetUnitWithDebuff(P4.Debuff.Poison, P4.Debuff.Curse)
     local dispelReady = P4.IsSpellReady(Feral.Spells.RemoveCorruption)
-    if debuffedUnit and not UnitIsUnit("focus", debuffedUnit) then
-            if dispelReady then
-                P4.log("Focus " .. tostring(debuffedUnit) .. " for dispel", P4.DEBUG)
-                return P4.MacroSystem:GetMacroIDForUnit(debuffedUnit)
-            end
-    end
-    if debuffedUnit and UnitIsUnit("focus", debuffedUnit) and dispelReady then
-      return Feral.Spells.RemoveCorruption
+    local debuffedUnit = dispelReady and P4.AuraTracker:GetUnitWithDebuff(P4.Debuff.Curse, P4.Debuff.Poison)
+    
+    -- Focusing logic
+    local action = P4.GetTarget(debuffedUnit)
+    if action then return action end
+
+    -- Dispel the debuffed unit
+    if debuffedUnit then -- if we are here, this means debuffed unit is in focus, no need to check
+        P4.log("Purify Spirit on " .. tostring(debuffedUnit), P4.DEBUG)
+        return Feral.Spells.RemoveCorruption
     end
 
     if not P4.AuraTracker:EveryoneHas(Feral.Buffs.MarkOfTheWild) then

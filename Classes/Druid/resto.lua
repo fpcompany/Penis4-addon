@@ -88,8 +88,7 @@ Rdruid.Buffs = {
 
 Rdruid.priority = function()
     local groveGuardiansCharges, groveGuardiansMaxCharges = P4.GetSpellCharges(Rdruid.Spells.GroveGuardians)
-    local naturesCureReady = P4.IsSpellReady(Rdruid.Spells.NaturesCure)
-
+    
     local myMana = unitManaPercentage("player")
     if myMana <= 10 and P4.IsItemReady(212240) then -- 10% mana
         P4.log("MANA POTION (<10%)", P4.DEBUG)
@@ -105,28 +104,28 @@ Rdruid.priority = function()
         return Rdruid.Spells.Eflorescence
     end
 
-    -- Target Select Logic
+    local unit = nil -- THIS UNIT WILL BE FOCUSED
     local mostDamagedUnit, mduHealth = P4.GroupTracker:Get()
-    local lowHealthCount = P4.GroupTracker:CountBelowPercent(70)
-    local debuffedUnit = P4.AuraTracker:GetUnitWithDebuff(P4.Debuff.Magic, P4.Debuff.Curse, P4.Debuff.Poison)
-    if (mduHealth > 90 and (not naturesCureReady or not debuffedUnit)) then -- Party is healthy, skip healing rotation
-        if UnitExists("focus") then
-            return P4.MacroSystem:GetMacroIDForMacro("FocusClear")
-        end
-        return nil
-    end
-    if not UnitExists("focus") or (mostDamagedUnit and not UnitIsUnit("focus", mostDamagedUnit)) or (debuffedUnit and not UnitIsUnit("focus", debuffedUnit)) then
-        if debuffedUnit and naturesCureReady then
-            return P4.MacroSystem:GetMacroIDForUnit(debuffedUnit)
-        end
-        if mduHealth <= 80 then
-            return P4.MacroSystem:GetMacroIDForUnit(mostDamagedUnit)
-        end
-        return nil
+    local lowHealthCount = P4.GroupTracker:CountBelowPercent(80)
+    local naturesCureReady = P4.IsSpellReady(Rdruid.Spells.NaturesCure)
+    local debuffedUnit = naturesCureReady and P4.AuraTracker:GetUnitWithDebuff(P4.Debuff.Magic, P4.Debuff.Curse, P4.Debuff.Poison)
+    
+    if debuffedUnit then
+        unit = debuffedUnit
+    elseif mduHealth <= 80 then
+        unit = mostDamagedUnit
     end
 
+    -- Focusing logic
+    local action = P4.GetTarget(unit)
+    if action then return action end
+
+    -- Everyone is healthy and not debuffed / cant dispel yet, stop healing
+    if mduHealth > 90 and not debuffedUnit then return nil end
+
     -- Dispel the debuffed unit
-    if naturesCureReady and debuffedUnit and UnitIsUnit("focus", debuffedUnit) then
+    if debuffedUnit then -- if we are here, this means debuffed unit is in focus, no need to check
+        P4.log("Natures Cure on " .. tostring(debuffedUnit), P4.DEBUG)
         return Rdruid.Spells.NaturesCure
     end
 
@@ -152,12 +151,6 @@ Rdruid.priority = function()
     local cenarionWardReady = P4.IsSpellReady(Rdruid.Spells.CenarionWard)
     local hasTreant = GetTotemInfo(1)
     local groveGuardiansReady = P4.IsSpellReady(Rdruid.Spells.GroveGuardians)
-
-    --[[-- Need to disable Hekili's Spiritwalker's grace recommendation
-    if IsPlayerMoving() and spiritwalkerReady then
-        P4.log("Spiritwalker's grace (moving)", P4.DEBUG)
-        return Rdruid.Spells.Spiritwalker
-    end]]
 
     -- Protect self if party is in a pinch
     if (myHealth <= 70 and lowHealthCount >= 3) or (myHealth <= 50 and lowHealthCount <= 2) then
