@@ -27,6 +27,7 @@ Feral.Buffs = {
     PredatorySwiftness = 69369,
     BearForm = 5487,
     MarkOfTheWild = 1126,
+    MarkOfTheWildNPCs = 432661, -- on Brann
 }
 
 Feral.priority = function()
@@ -56,7 +57,7 @@ Feral.priority = function()
         return Feral.Spells.RemoveCorruption
     end
 
-    if not P4.AuraTracker:EveryoneHas(Feral.Buffs.MarkOfTheWild) then
+    if not P4.AuraTracker:EveryoneHas(Feral.Buffs.MarkOfTheWild, Feral.Buffs.MarkOfTheWildNPCs) then
         P4.log("Lapka (someone does not have it)", P4.DEBUG)
         return Feral.Spells.MarkOfTheWild
     end

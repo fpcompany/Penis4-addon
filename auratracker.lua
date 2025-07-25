@@ -180,14 +180,27 @@ function AT:GetGUID(unitOrGUID)
     return UnitGUID(unitOrGUID)
 end
 
-function AT:EveryoneHas(spellId)
+-- Accepts IDs
+-- Second ID is typically when you buff Brann or Follower Dungeon NPCs, as NPCs receive different kind of buff id.
+function AT:EveryoneHas(...)
+    local spellIds = { ... }
     for _, unit in ipairs(P4.GroupTracker:GetUnitsInRange() or {}) do
-        if not UnitIsDeadOrGhost(unit) and not self:UnitHas(unit, spellId) then
-            return false
+        if not UnitIsDeadOrGhost(unit) then
+            local hasAny = false
+            for _, id in ipairs(spellIds) do
+                if self:UnitHas(unit, id) then
+                    hasAny = true
+                    break
+                end
+            end
+            if not hasAny then
+                return false
+            end
         end
     end
     return true
 end
+
 
 function AT:WhoHas(spellId)
     local result = {}

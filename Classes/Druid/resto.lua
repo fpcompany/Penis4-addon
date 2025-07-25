@@ -84,6 +84,7 @@ Rdruid.Buffs = {
     Flourish = 197721,
     ClearCasting = 16870,
     MarkOfTheWild = 1126,
+    MarkOfTheWildNPCs = 432661, -- on Brann
 }
 
 Rdruid.priority = function()
@@ -95,7 +96,7 @@ Rdruid.priority = function()
         return P4.MacroSystem:GetMacroIDForMacro("ManaPotion")
     end
 
-    if not P4.AuraTracker:EveryoneHas(Feral.Buffs.MarkOfTheWild) then
+    if not P4.AuraTracker:EveryoneHas(Feral.Buffs.MarkOfTheWild, Rdruid.Buffs.MarkOfTheWildNPCs) then
         P4.log("Lapka (someone does not have it)", P4.DEBUG)
         return Feral.Spells.MarkOfTheWild
     end

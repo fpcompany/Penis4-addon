@@ -24,6 +24,7 @@ Guardian.Buffs = {
     SurvivalInstincts = 61336,
     Ironfur = 192081,
     MarkOfTheWild = 1126,
+    MarkOfTheWildNPCs = 432661, -- on Brann
 }
 
 Guardian.priority = function()
@@ -55,7 +56,7 @@ Guardian.priority = function()
         return Guardian.Spells.RemoveCorruption
     end
 
-    if not P4.AuraTracker:EveryoneHas(Guardian.Buffs.MarkOfTheWild) then
+    if not P4.AuraTracker:EveryoneHas(Guardian.Buffs.MarkOfTheWild, Guardian.Buffs.MarkOfTheWildNPCs) then
         P4.log("Lapka (someone does not have it)", P4.DEBUG)
         return Guardian.Spells.MarkOfTheWild
     end
