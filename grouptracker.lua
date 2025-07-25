@@ -36,12 +36,13 @@ local function UpdateUnitHealth(unit)
     if UnitExists(unit) and UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and UnitCanAssist("player", unit) then
         local hp = UnitHealth(unit)
         local maxHp = UnitHealthMax(unit)
-        local absorb = UnitGetTotalHealAbsorbs(unit) or 0
+        local healAbsorb = UnitGetTotalHealAbsorbs(unit) or 0
+        local shieldAbsorb = UnitGetTotalAbsorbs(unit) or 0
 
         if maxHp > 0 then
-            -- Cap effective HP at maxHP to avoid negative values
-            local effectiveHP = math.max(hp - absorb, 0)
-            GT.healthData[unit] = effectiveHP / maxHp
+            -- Effective HP: subtract healing absorbs, add damage absorbs (shields)
+            local effectiveHP = math.max(hp - healAbsorb, 1) + shieldAbsorb
+            GT.healthData[unit] = math.min(effectiveHP / maxHp, 1)
         else
             GT.healthData[unit] = 1
         end
@@ -91,6 +92,11 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
             UpdateUnitHealth(arg1)
             GT:UpdateMostDamaged()
         end
+    elseif event == "UNIT_ABSORB_AMOUNT_CHANGED" or event == "UNIT_HEAL_ABSORB_AMOUNT_CHANGED" then
+        if tContains(GT.units, arg1) then
+            UpdateUnitHealth(arg1)
+            GT:UpdateMostDamaged()
+        end
     end
 end)
 
@@ -98,6 +104,8 @@ eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 eventFrame:RegisterEvent("UNIT_HEALTH")
 eventFrame:RegisterEvent("UNIT_MAXHEALTH")
+eventFrame:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
+eventFrame:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
 
 function GT:Get()
     return self.mostDamagedUnit or nil, (GT.healthData[self.mostDamagedUnit] or 1) * 100

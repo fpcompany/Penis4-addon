@@ -118,8 +118,12 @@ local function modifier(str)
 end
 
 local function button(sym)
-    local key = sym:upper()
-    return js_key_to_code[key] or -1
+    if sym == "" then return -1 end
+    local ret_val = js_key_to_code[sym:upper()] or -1
+    if ret_val == -1 then
+        P4.log("WE DO NOT SUPPORT THE KEY (" .. sym .. ") YET, PLEASE CHANGE IT TO ANOTHER BUTTON THX", P4.WARN)
+    end
+    return ret_val
 end
 
 --Dynamic Combination function

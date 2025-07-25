@@ -33,4 +33,6 @@ Classes\Monk\monk.lua
 Classes\Monk\brewmaster.lua
 Classes\Warrior\warrior.lua
 Classes\Warrior\fury.lua
+Classes\Priest\priest.lua
+Classes\Priest\dcp.lua
 boot.lua

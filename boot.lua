@@ -113,6 +113,9 @@ local update = function(indicator, source)
             else
                 local bind = Hekili.Class.abilities[spell].bind
                 if bind then
+                    if type(bind) == "table" then -- disc priest 34433, mindbender / voidwrath
+                        bind = bind[1]
+                    end
                     spell = Hekili.Class.abilities[bind].id
                     color = P4.spellColorTable[spell]
                     --P4.log("Inferred that " .. hekiliActionID .. " is " .. spell, P4.SUCCESS)
