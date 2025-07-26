@@ -80,7 +80,7 @@ Guardian.priority = function()
         end
     end
 
-    if P4.IsItemReady(211879) and not P4.IsSpellReady(Guardian.Spells.FrenziedRegeneration) and myHealth < 50 then -- Algari Healing Potion
+    if (P4.IsItemReady(211879) or P4.IsItemReady(21880) or P4.IsItemReady(211878)) and not P4.IsSpellReady(Guardian.Spells.FrenziedRegeneration) and myHealth < 50 then -- Algari Healing Potion
         P4.log("HP POTION (<50%)", P4.DEBUG)
         return P4.MacroSystem:GetMacroIDForMacro("HealingPotion")
     end

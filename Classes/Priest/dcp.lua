@@ -5,7 +5,13 @@ Priest.specs[1] = DCP
 DCP.Macros = {
 }
 
+-- #showtooltip
+--/cast [@focus,exists][] Renew
+
 DCP.Setup = function ()
+    P4.log("Class Checklist:", P4.SUCCESS)
+    P4.log("Add macros for PWS, Renew, Flash Heal, Penance, Pain Suppression, Purify, Power Infusion", P4.SUCCESS)
+    P4.log("Disable spells in Hekili: Power Infusion")
 end
 
 DCP.Spells = {
@@ -25,6 +31,7 @@ DCP.Spells = {
     PremonitionOfSolace = 428934, -- next single target heal spell will shield ally
     PremonitionOfClairvoyance = 440725, -- grants effect of all 3 premonitions
     UltimatePenance = 421453, -- damage enemies and heal party over 5.5 seconds, 4 min cd
+    PI = 10060, -- 15 sec haste buff
 }
 
 DCP.Buffs = {
@@ -35,6 +42,7 @@ DCP.Buffs = {
     PremonitionOfPiety = 428930, -- increased healing and overhealing heals other allies
     PremonitionOfSolace = 428934, -- next ST healing spell will apply shield and -15% incoming damage save for 15 seconds
     PainSuppression = 33206, -- 40% damage reduction save
+    SurgeOfLight = 114255, -- Flash heal is free and instant
 }
 
 DCP.Talents = {
@@ -49,14 +57,14 @@ DCP.priority = function ()
 
     --[[HEALING POTION]]
     if myHealth <= 50 then
-        if P4.IsItemReady(211879) then -- Algari Healing Potion
+        if P4.IsItemReady(211879) or P4.IsItemReady(21880) or P4.IsItemReady(211878) then -- Algari Healing Potion
             P4.log("HP POTION (<50%)", P4.DEBUG)
             return P4.MacroSystem:GetMacroIDForMacro("HealingPotion")
         end
     end
     
     --[[MANA POTION]]
-    if myMana <= 10 and P4.IsItemReady(212240) then -- 10% mana
+    if myMana <= 10 and (P4.IsItemReady(212240) or P4.IsItemReady(212239) or P4.IsItemReady(212241)) then -- 10% mana
         P4.log("MANA POTION (<10%)", P4.DEBUG)
         return P4.MacroSystem:GetMacroIDForMacro("ManaPotion")
     end
@@ -73,11 +81,23 @@ DCP.priority = function ()
     local dispelReady = P4.IsSpellReady(DCP.Spells.Purify)
     local hasImprovedPurify = IsPlayerSpell(DCP.Talents.ImprovedPurify)
     local debuffedUnit = dispelReady and ((hasImprovedPurify and P4.AuraTracker:GetUnitWithDebuff(P4.Debuff.Magic, P4.Debuff.Disease)) or (not hasImprovedPurify and P4.AuraTracker:GetUnitWithDebuff(P4.Debuff.Magic)))
+    local piReady = P4.IsSpellReady(DCP.Spells.PI)
+    local piTarget, alliedCooldownID = P4.AuraTracker:FirstWhoHas(Common.AlliedCooldowns)
+    local weLust = P4.AuraTracker:UnitHasAnyOf("player", Common.BloodlustEffects)
     
-    if debuffedUnit then
+    if piTarget then 
+        unit = piTarget
+        debuffedUnit = nil -- ignore him for now...
+    elseif debuffedUnit then
         unit = debuffedUnit
     elseif mduHealth <= HEALING_THRESHOLD then
         unit = mostDamagedUnit
+    end
+
+    -- PI when under bloodlust effect
+    if piReady and weLust then
+        P4.log("Using PI because under the effects of Bloodlust", P4.DEBUG)
+        return DCP.Spells.PI
     end
 
     -- Focusing logic
@@ -85,7 +105,13 @@ DCP.priority = function ()
     if action then return action end
 
     -- Everyone is healthy and not debuffed / cant dispel yet, stop healing
-    if mduHealth > HEALING_THRESHOLD and not debuffedUnit then return nil end
+    if mduHealth > HEALING_THRESHOLD and not debuffedUnit and not piTarget then return nil end
+
+    -- PI on PI target
+    if piReady and piTarget then
+        P4.log("Using PI on " .. piTarget .. " because they are under the effects of personal cooldown, " .. alliedCooldownID, P4.DEBUG)
+        return DCP.Spells.PI
+    end
 
     -- Dispel the debuffed unit
     if debuffedUnit then -- if we are here, this means debuffed unit is in focus, no need to check
@@ -110,6 +136,7 @@ DCP.priority = function ()
     local painSuppressionReady = P4.IsSpellReady(DCP.Spells.PainSuppression)
     local targetHasPainSuppression = P4.AuraTracker:UnitHas("focus", DCP.Buffs.PainSuppression)
     local ultimatePenanceReady = P4.IsSpellReady(DCP.Spells.UltimatePenance)
+    local hasSurgeOfLight = P4.AuraTracker:UnitHas("player", DCP.Buffs.SurgeOfLight)
 
     local premonitionOfInsightUsable = IsSpellKnownOrOverridesKnown(DCP.Spells.PremonitionOfInsight)
     local premonitionOfPietyUsable = IsSpellKnownOrOverridesKnown(DCP.Spells.PremonitionOfPiety)
@@ -132,6 +159,11 @@ DCP.priority = function ()
     -- Protect self if party is in a pinch
     if desperatePrayerReady and ((myHealth <= 70 and lowHealthCount >= 3) or (myHealth <= 70 and lowHealthCount >= 2 and mduHealth <= 50) or myHealth <= 30) then
         return DCP.Spells.DesperatePrayer
+    end
+
+    -- Consume Surge Of Light for a free heal
+    if mduHealth <= 80 and hasSurgeOfLight then
+        return DCP.Spells.FlashHeal
     end
 
     -- Extend atonement on group if everyone has it

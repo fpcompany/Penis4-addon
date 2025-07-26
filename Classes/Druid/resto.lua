@@ -91,7 +91,7 @@ Rdruid.priority = function()
     local groveGuardiansCharges, groveGuardiansMaxCharges = P4.GetSpellCharges(Rdruid.Spells.GroveGuardians)
     
     local myMana = unitManaPercentage("player")
-    if myMana <= 10 and P4.IsItemReady(212240) then -- 10% mana
+    if myMana <= 10 and (P4.IsItemReady(212240) or P4.IsItemReady(212239) or P4.IsItemReady(212241)) then -- 10% mana
         P4.log("MANA POTION (<10%)", P4.DEBUG)
         return P4.MacroSystem:GetMacroIDForMacro("ManaPotion")
     end
@@ -160,7 +160,7 @@ Rdruid.priority = function()
         elseif barkskinReady then
             return Rdruid.Spells.Barkskin
         elseif myHealth <= 50 then -- 50% hp
-            if P4.IsItemReady(211879) then -- Algari Healing Potion
+            if P4.IsItemReady(211879) or P4.IsItemReady(21880) or P4.IsItemReady(211878) then -- Algari Healing Potion
                 P4.log("HP POTION (<50%)", P4.DEBUG)
                 return P4.MacroSystem:GetMacroIDForMacro("HealingPotion")
             end

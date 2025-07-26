@@ -212,6 +212,28 @@ function AT:WhoHas(spellId)
     return result
 end
 
+--- Returns the first unit in range who has any of the listed buff spell IDs.
+--- Usage: local unit = P4.AuraTracker:FirstWhoHas(12345, 67890, ...)
+function AT:FirstWhoHas(...)
+    local args = { ... }
+    local spellIds = {}
+
+    if type(args[1]) == "table" then
+        spellIds = args[1]  -- single table argument
+    else
+        spellIds = args     -- multiple individual arguments
+    end
+
+    for _, unit in ipairs(P4.GroupTracker:GetUnitsInRange() or {}) do
+        for _, id in ipairs(spellIds) do
+            if self:UnitHas(unit, id) then
+                return unit, id
+            end
+        end
+    end
+    return nil
+end
+
 function AT:UnitHas(unitOrGUID, spellId)
     local guid = self:GetGUID(unitOrGUID)
     if not guid then return false end
@@ -220,6 +242,23 @@ function AT:UnitHas(unitOrGUID, spellId)
     if aura then
         return true, aura.expiration, aura.stacks
     end
+    return false
+end
+
+-- "player", {1488, 228, 1337}
+function AT:UnitHasAnyOf(unitOrGUID, spellIdList)
+    local guid = self:GetGUID(unitOrGUID)
+    if not guid then return false end
+
+    local auras = self.unitAuras[guid]
+    if not auras then return false end
+
+    for _, spellId in ipairs(spellIdList) do
+        if auras[spellId] then
+            return true
+        end
+    end
+
     return false
 end
 

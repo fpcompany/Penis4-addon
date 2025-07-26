@@ -42,7 +42,7 @@ local function UpdateUnitHealth(unit)
         if maxHp > 0 then
             -- Effective HP: subtract healing absorbs, add damage absorbs (shields)
             local effectiveHP = math.max(hp - healAbsorb, 1) + shieldAbsorb
-            GT.healthData[unit] = math.min(effectiveHP / maxHp, 1)
+            GT.healthData[unit] = effectiveHP / maxHp --math.min(effectiveHP / maxHp, 1)
         else
             GT.healthData[unit] = 1
         end

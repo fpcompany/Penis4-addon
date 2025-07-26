@@ -18,6 +18,25 @@ Common.Spells = {
     Fireblood = 265221, -- Dark iron dwarf racial
 }
 
+Common.BloodlustEffects = {
+    2825,   -- Bloodlust        |   Shaman (Horde)
+    32182,  -- Heroism          |   Shaman (Alliance)
+    80353,  -- Time Warp        |   Mage
+    264667, -- Primal Rage      |   Hunter's Pet
+    390386, -- Gay baby rage    |   Gay dragon baby
+    466904, -- Harrier's Cry    |   Hunter
+}
+
+Common.AlliedCooldowns = {
+    190319, -- Combustion
+    12472,  -- Icy Veins
+    31884,  -- Avenging Wrath
+    51271,  -- Pillar of Frost
+    152279, -- Breath of Sindragosa
+    47568,  -- Empower Rune Weapon
+    375087, -- Gay baby rage (x2)
+}
+
 local CreateVirtualMacro = function(name, macrotext)
     local frame = CreateFrame("Frame", nil, UIParent, "SecureHandlerStateTemplate")
     frame:SetSize(1, 1)

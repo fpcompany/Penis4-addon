@@ -11,3 +11,7 @@ end
 
 Frost.Setup = function ()
 end
+
+Frost.Buffs = {
+    IcyVeins = 12472,
+}

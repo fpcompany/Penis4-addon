@@ -9,3 +9,7 @@ Fire.Macros = {
 
 Fire.Setup = function ()
 end
+
+Fire.Buffs = {
+    Combustion = 190319,
+}
