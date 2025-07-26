@@ -85,7 +85,7 @@ DCP.priority = function ()
     local piTarget, alliedCooldownID = P4.AuraTracker:FirstWhoHas(Common.AlliedCooldowns)
     local weLust = P4.AuraTracker:UnitHasAnyOf("player", Common.BloodlustEffects)
     
-    if piTarget then 
+    if piTarget and piReady then 
         unit = piTarget
         debuffedUnit = nil -- ignore him for now...
     elseif debuffedUnit then
@@ -105,7 +105,7 @@ DCP.priority = function ()
     if action then return action end
 
     -- Everyone is healthy and not debuffed / cant dispel yet, stop healing
-    if mduHealth > HEALING_THRESHOLD and not debuffedUnit and not piTarget then return nil end
+    if (mduHealth > HEALING_THRESHOLD and not debuffedUnit and not piTarget) or not UnitExists("focus") then return nil end
 
     -- PI on PI target
     if piReady and piTarget then
