@@ -34,7 +34,7 @@ Common.AlliedCooldowns = {
     51271,  -- Pillar of Frost
     152279, -- Breath of Sindragosa
     47568,  -- Empower Rune Weapon
-    375087, -- Gay baby rage (x2)
+    375087, -- Gay baby rage
 }
 
 local CreateVirtualMacro = function(name, macrotext)

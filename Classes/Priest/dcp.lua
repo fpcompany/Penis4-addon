@@ -12,6 +12,23 @@ DCP.Setup = function ()
     P4.log("Class Checklist:", P4.SUCCESS)
     P4.log("Add macros for PWS, Renew, Flash Heal, Penance, Pain Suppression, Purify, Power Infusion", P4.SUCCESS)
     P4.log("Disable spells in Hekili: Power Infusion")
+
+    -- Patch Hekili to add missing spell
+    Hekili:GetSpecialization(256):RegisterAbilities({
+        power_word_life_improved = {
+            id = 440678,
+            cast = 0,
+            cooldown = 15,
+            gcd = "spell",
+            spend = 0.1,
+            spendType = "mana",
+            startsCombat = false,
+            texture = 136043,
+
+            handler = function()
+            end
+        },
+    })
 end
 
 DCP.Spells = {
@@ -32,6 +49,8 @@ DCP.Spells = {
     PremonitionOfClairvoyance = 440725, -- grants effect of all 3 premonitions
     UltimatePenance = 421453, -- damage enemies and heal party over 5.5 seconds, 4 min cd
     PI = 10060, -- 15 sec haste buff
+    PW_Life_Improved = 440678, -- big heal only usable when target is on 50% life
+    PW_Life_Basic = 373481, -- big heal only usable when target is on 35% life
 }
 
 DCP.Buffs = {
@@ -47,6 +66,7 @@ DCP.Buffs = {
 
 DCP.Talents = {
     ImprovedPurify = 390632, -- also dispel disease
+    MiraculousRecovery = 440674, -- improve Power Word: Life to work on targets under 50% life
 }
 
 DCP.priority = function ()
@@ -126,6 +146,8 @@ DCP.priority = function ()
     local targetShielded = P4.AuraTracker:UnitHas("focus", DCP.Buffs.Shielded)
     local targetHasAtonement = P4.AuraTracker:UnitHas("focus", DCP.Buffs.Atonement)
     local pwrReady = P4.IsSpellReady(DCP.Spells.PW_Radiance)
+    local hasMiraculousRecovery = IsPlayerSpell(DCP.Talents.MiraculousRecovery) 
+    local pwlReady = (hasMiraculousRecovery and (IsSpellKnownOrOverridesKnown(DCP.Spells.PW_Life_Improved) and C_Spell.GetSpellCooldown(DCP.Spells.PW_Life_Improved).startTime == 0)) or (IsSpellKnownOrOverridesKnown(DCP.Spells.PW_Life_Basic) and C_Spell.GetSpellCooldown(DCP.Spells.PW_Life_Basic).startTime == 0)
     local penanceReady = P4.IsSpellReady(DCP.Spells.Penance)
     local evangelismReady = P4.IsSpellReady(DCP.Spells.Evangelism)
     local desperatePrayerReady = P4.IsSpellReady(DCP.Spells.DesperatePrayer)
@@ -146,6 +168,15 @@ DCP.priority = function ()
     -- Ultimate penance if party is in a pinch
     if ultimatePenanceReady and  mduHealth <= 50 and lowHealthCount >= 4 then
         return DCP.Spells.UltimatePenance
+    end
+
+    -- Power Word Life on eligible target
+    if pwlReady then
+        if (hasMiraculousRecovery and mduHealth <= 50) then
+            return DCP.Spells.PW_Life_Improved
+        elseif (mduHealth <= 35) then
+            return DCP.Spells.PW_Life_Basic
+        end
     end
 
     -- Get a premonition buff if party is in a pinch
