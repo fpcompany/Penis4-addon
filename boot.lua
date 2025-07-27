@@ -43,7 +43,7 @@ local update = function(indicator, source)
     if hekiliActionID and hekiliActionID < 0 and not prio then --this is an item
         local itemID = Hekili.Class.abilities[hekiliActionID].item
         local slot = P4.Character:GetSlot(itemID) --get its slot. 13 and 14 are for trinkets, mainhand weapon is 16. we are going to convert them to macro id's
-        spell = -1 * slot
+        if slot then spell = -1 * slot end
     end
 
     -- override hekili's spell and keybind if got priority cast
