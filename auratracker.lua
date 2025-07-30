@@ -12,6 +12,7 @@ local bleedList = LibDispel:GetBleedList()
 local badDebuffs = {
     [472197] = true,    -- Liberation of Undermine     | One-Armed Bandit      | Withering Flames
     [473713] = true,    -- Floodgate                   | Keeza Quickfuse       | Kinetic Explosive Gel
+    [429493] = true,    -- Rookery                     | Monstrosity           | Unstable Corruption
 }
 -- THESE DEBUFFS ARE *TOXIC* TO MY WORKFLOW NIGGA
 -- Hahaha i love this little fella

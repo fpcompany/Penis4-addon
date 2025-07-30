@@ -14,6 +14,10 @@ P4.racials = {
     ["MagharOrc"] = 274738,     -- Ancestral Call
 }
 
+P4.party_busters = {
+    [167385] = { magic = false }, -- REPLACE ME
+}
+
 P4.tankbusters = {
     -- DF
     [167385] = true, -- Uber Strike (Dummy crush)
@@ -99,6 +103,13 @@ end
 function P4.TankbusterDanger()
     local _, _, _, _, _, _, _, _, targetCastId = UnitCastingInfo("target")
     return P4.tankbusters[targetCastId] == true
+end
+
+-- returns IN_DANGER?, IS_MAGIC?
+function P4.PartybusterDanger()
+    local _, _, _, _, _, _, _, _, targetCastId = UnitCastingInfo("target")
+    local struya_mochi = P4.party_busters[targetCastId]
+    return struya_mochi ~= nil, struya_mochi and struya_mochi.magic or false
 end
 
 function P4.WhoAmI()
