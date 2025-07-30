@@ -15,7 +15,28 @@ P4.racials = {
 }
 
 P4.party_busters = {
-    [167385] = { magic = false }, -- REPLACE ME
+    [167385] = { magic = true }, -- Uber Strike (Dummy crush)
+    [459799] = { magic = true }, -- Wallop (Momma, Operation Floodgate)
+    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
+    [473070] = { magic = true }, -- Awaken the Swamp (Swampface, Operation Floodgate)
+    [465463] = { magic = true }, -- Turbo Charge (Gigazap, Operation Floodgate)
+    [448791] = { magic = true }, -- Sacred Toll (Trash, Priory)
+    [426787] = { magic = true }, -- Shadowy Decay (Anubi'kkaj, Dawnbreaker)
+    [438476] = { magic = true }, -- Alerting Shrill (Avanoxx, Ara-Kara)
+    [346742] = { magic = false }, -- Fan Mail (Mailroom Mayhem, Tazavesh)
+    [350796] = { magic = true }, -- Hyperlight Spark (So'leah, Tazavesh)
+    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
+    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
+    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
+    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
+    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
+    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
+    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
+    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
+    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
+    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
+    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
+    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
 }
 
 P4.tankbusters = {
@@ -91,6 +112,12 @@ P4.tankbusters = {
     [331288] = true, -- Colossus Smash (Trash, Theatre of Pain)
     [333845] = true, -- Unbalancing Blow (Trash, Theatre of Pain)
     [330565] = true, -- Shield Bash (Trash, Theatre of Pain)
+    -- TWW(S3)
+    [349934] = true, -- Flagellation Protocol (Grand Menagerie, Tazavesh)
+    [350916] = true, -- Security Slam (Myza's Oasis, Tazavesh)
+    [359028] = true, -- Security Slam (Myza's Oasis, Tazavesh)
+    [346116] = true, -- Shearing Swings (Hylbrande, Tazavesh)
+    [323437] = true, -- Stigma of Pride (Lord Chamberlain, Tazavesh)
 }
 
 P4.NeedClip = function(channelSpell)

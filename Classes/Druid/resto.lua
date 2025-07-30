@@ -248,91 +248,11 @@ Rdruid.priority = function()
         end
     end
 
-    
-    --[[-- Use CBT totem on cooldown
-    if cbtTotemReady and cbtTotemCharges == 2 then
-        P4.log("CBT totem (2 charges)", P4.DEBUG)
-        return Rdruid.Spells.CloudburstTotem
-    end]]
-
-    --[[-- Generate Master of the elements with incast lava burst (only if target is attackable)
-    if mduHealth >= 70 and masterOfTheElementsLearned and not hasMasterOfTheElements and hasLavaSurge 
-        and UnitExists("target") and UnitCanAttack("player", "target")then
-        P4.log("Lava Burst (consume lava surge)", P4.DEBUG)
-        return Rdruid.Spells.LavaBurst
-    end]]
-
-    -- Keep Earth Shield on the tank
-    --[[if targetIsTank() and not P4.AuraTracker:UnitHas("target", Rdruid.Buffs.EarthShield) then
-        P4.log("Rebuff Earth Shield on Tank", P4.DEBUG)
-        return Rdruid.Spells.EarthShield
-    end]]
-
-    --[[-- Unleash life to buff heals
-    if unleashLifeReady then
-        P4.log("Unleash Life (on cooldown)", P4.DEBUG)
-        return Rdruid.Spells.UnleashLife
-    end]]
-
-    -- Consume Downpour (BUGGY)
-    --[[if hasDownpour and lowHealthCount >= 3 then
-        P4.log("Surging Totem (Consume Downpour)", P4.DEBUG)
-        return Rdruid.Spells.SurgingTotem
-    end]]
-
-    --[[
-    -- Chain Heal if High Tide procced
-    if hasHighTide and lowHealthCount >= 3 then
-        P4.log("Chain Heal (has High Tide and 3 people injired)", P4.DEBUG)
-        return Rdruid.Spells.ChainHeal
-    end
-    
-    -- Use Wellspring after AOE
-    if wellspringReady and lowHealthCount >= 4 then
-        P4.log("Wellspring (4 players are hurt)", P4.DEBUG)
-        return Rdruid.Spells.Wellspring
+    if P4.PartybusterDanger() then
+        if barkskinReady then
+            return Rdruid.Spells.Barkskin
+        end
     end
 
-    -- Use Healing Tide totem after AOE
-    if htTotemReady and lowHealthCount >= 4 then
-        P4.log("Healing Tide Totem (4 players are hurt)", P4.DEBUG)
-        return Rdruid.Spells.HealingTideTotem
-    end
-
-    -- Buffed Healing Surge
-    if hasMasterOfTheElements then
-        P4.log("Healing Surge (Consume Master of the Elements)", P4.DEBUG)
-        return Rdruid.Spells.HealingSurge
-    end
-
-    -- Use Riptide if available and target not affected by Riptide, or if dont have Tidal Waves stacks
-    if P4.IsSpellReady(Rdruid.Spells.Riptide) and (not targetHasRiptide or not hasTidalWaves) then
-        P4.log("Riptide (tidal = " .. tostring(hasTidalWaves) .. ", has buff = " .. tostring(targetHasRiptide) .. ")", P4.DEBUG)
-        return Rdruid.Spells.Riptide
-    end
-
-    -- Keep Earthen Wall Totem on cooldown
-    if earthenWallTotemReady then
-        return Rdruid.Spells.EarthenWallTotem
-    end
-
-    -- Consume Undulation
-    if hasUndulation then
-        P4.log("Healing Surge (consume Undulation)", P4.DEBUG)
-        return Rdruid.Spells.HealingSurge
-    end
-
-    -- If 3 or more people are injured, use Chain Heal
-    if ancestralReachLearned and lowHealthCount > 3 then
-        P4.log("Chain Heal (at least 3 party members)", P4.DEBUG)
-        return Rdruid.Spells.ChainHeal
-    end
-
-    if mduHealth >= 70 and lowHealthCount <= 2 then 
-        return Rdruid.Spells.HealingWave
-    else
-        return Rdruid.Spells.HealingSurge
-    end
-    ]]
     return nil
 end

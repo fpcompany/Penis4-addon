@@ -72,5 +72,16 @@ Fury.priority = function()
             return Fury.Spells.RallyingCry
     end
 
+    local physPartyBuster, magicPartyBuster = P4.PartybusterDanger()
+    if physPartyBuster then
+        if magicPartyBuster and spellReflectionReady and not hasEnragedRegeneration then
+            return Fury.Spells.SpellReflection
+        elseif enragedRegenerationReady then
+            return Fury.Spells.EnragedRegeneration
+        elseif not hasDefensiveStance and not hasEnragedRegeneration then
+            return Fury.Spells.DefensiveStance
+        end
+    end
+
     return nil
 end

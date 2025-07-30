@@ -93,5 +93,13 @@ Feral.priority = function()
         end
     end
 
+    if P4.PartybusterDanger() then
+        if barkskinReady and not hasFrenziedRegeneration and not hasSurvivalInstincts then
+            return Feral.Spells.Barkskin
+        elseif survivalInstinctsReady and not hasFrenziedRegeneration and not hasBarkskin then
+            return Feral.Spells.SurvivalInstincts
+        end
+    end
+
     return nil
 end
