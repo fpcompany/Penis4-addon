@@ -22,21 +22,16 @@ P4.party_busters = {
     [465463] = { magic = true }, -- Turbo Charge (Gigazap, Operation Floodgate)
     [448791] = { magic = true }, -- Sacred Toll (Trash, Priory)
     [426787] = { magic = true }, -- Shadowy Decay (Anubi'kkaj, Dawnbreaker)
+    [448887] = { magic = true }, -- Erosive Spray (Rashanan, Dawnbreaker)
+    [448888] = { magic = true }, -- Erosive Spray (Rashanan, Dawnbreaker)
+    [448492] = { magic = true }, -- Thunderclap (Trash, Priory)
     [438476] = { magic = true }, -- Alerting Shrill (Avanoxx, Ara-Kara)
+    [438877] = { magic = false }, -- Call of the brood (Thrash, Ara-Kara)
     [346742] = { magic = false }, -- Fan Mail (Mailroom Mayhem, Tazavesh)
     [350796] = { magic = true }, -- Hyperlight Spark (So'leah, Tazavesh)
-    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
-    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
-    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
-    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
-    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
-    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
-    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
-    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
-    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
-    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
-    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
-    [465827] = { magic = true }, -- Warp Blood (Trash, Operation Floodgate)
+    [326409] = { magic = true }, -- Thrash (Trash, Halls of atonement)
+    [326426] = { magic = true }, -- Thrash (Trash, Halls of atonement)
+    [326847] = { magic = true }, -- Disperse sin (Sigar, Halls of atonement)
 }
 
 P4.tankbusters = {
@@ -118,6 +113,9 @@ P4.tankbusters = {
     [359028] = true, -- Security Slam (Myza's Oasis, Tazavesh)
     [346116] = true, -- Shearing Swings (Hylbrande, Tazavesh)
     [323437] = true, -- Stigma of Pride (Lord Chamberlain, Tazavesh)
+    [431491] = true, -- Tainted Slash (Thrash, Dawnbreaker)
+    [448515] = true, -- Divine Judgement (Trash, Priory)
+    [435165] = true, -- Blazing Strike (Trash, Priory)
 }
 
 P4.NeedClip = function(channelSpell)
