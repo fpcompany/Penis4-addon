@@ -29,9 +29,16 @@ P4.party_busters = {
     [438877] = { magic = false }, -- Call of the brood (Thrash, Ara-Kara)
     [346742] = { magic = false }, -- Fan Mail (Mailroom Mayhem, Tazavesh)
     [350796] = { magic = true }, -- Hyperlight Spark (So'leah, Tazavesh)
+    [355429] = { magic = true }, -- Tidal Stomp (Trash, Tazavesh)
     [326409] = { magic = true }, -- Thrash (Trash, Halls of atonement)
     [326426] = { magic = true }, -- Thrash (Trash, Halls of atonement)
     [326847] = { magic = true }, -- Disperse sin (Sigar, Halls of atonement)
+    [1221152] = { magic = false }, -- Gorging Smash (Trash, Eco-Dome Al'dani)
+    [1221532] = { magic = true }, -- Erratic Ritual (Trash, Eco-Dome Al'dani)
+    [1217232] = { magic = true }, -- Devour (Azhiccar, Eco-Dome Al'dani)
+    [1220497] = { magic = true }, -- Arcane Overload (Taahbar, Eco-Dome Al'dani)
+    [1220511] = { magic = true }, -- Arcane Overload (Taahbar, Eco-Dome Al'dani)
+    [1224793] = { magic = true }, -- Whispers of Fate (Soulscribe, Eco-Dome Al'dani)
 }
 
 P4.tankbusters = {
@@ -112,10 +119,18 @@ P4.tankbusters = {
     [350916] = true, -- Security Slam (Myza's Oasis, Tazavesh)
     [359028] = true, -- Security Slam (Myza's Oasis, Tazavesh)
     [346116] = true, -- Shearing Swings (Hylbrande, Tazavesh)
-    [323437] = true, -- Stigma of Pride (Lord Chamberlain, Tazavesh)
+    [346876] = true, -- Shearing Swings (Hylbrande, Tazavesh)
+    [346877] = true, -- Shearing Swings (Hylbrande, Tazavesh)
+    [352796] = true, -- Proxy Strike (Trash, Tazavesh)
+    [351047] = true, -- Proxy Strike (Trash, Tazavesh)
+    [323437] = true, -- Stigma of Pride (Lord Chamberlain, Halls of Atonement)
+    [1235766] = true, -- Mortal Strike (Trash, Halls of Atonement)
+    [1237071] = true, -- Dtone Fist (Trash, Halls of Atonement)
     [431491] = true, -- Tainted Slash (Thrash, Dawnbreaker)
     [448515] = true, -- Divine Judgement (Trash, Priory)
     [435165] = true, -- Blazing Strike (Trash, Priory)
+    [1219482] = true, -- Rift Claws (Taah'bat, Eco-Dome Al'dani)
+    [1222341] = true, -- Gloom Bite (Trash, Eco-Dome Al'dani)
 }
 
 P4.NeedClip = function(channelSpell)
