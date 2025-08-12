@@ -36,7 +36,7 @@ local update = function(indicator, source)
     --Next, get any class overrides, like Warrior's spell reflection, defensive stance
     --Finally, get spec overrides. Here we may have healing spells or saves
     --is this ok? we havent decided yet
-    local prio = P4.class and P4.class.priority and P4.class.priority()
+    local prio = P4.class and P4.class.priority and P4.class.priority(hekiliActionID)
 
     local keybind = hekiliActionInfo and hekiliActionInfo.keybind
 
