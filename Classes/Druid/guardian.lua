@@ -15,6 +15,7 @@ Guardian.Spells = {
     RageOfTheSleeper = 200851,
     SurvivalInstincts = 61336,
     MarkOfTheWild = 1126,
+    Ravage = 441605,
 }
 
 Guardian.Buffs = {
@@ -25,9 +26,10 @@ Guardian.Buffs = {
     Ironfur = 192081,
     MarkOfTheWild = 1126,
     MarkOfTheWildNPCs = 432661, -- on Brann
+    Ravage = 441602,
 }
 
-Guardian.priority = function()
+Guardian.priority = function(hekili)
     local DESIRED_IRON_FUR_STACKS = 7
     local IRON_FUR_COST = 40
     local FR_COST = 10
@@ -109,6 +111,11 @@ Guardian.priority = function()
         elseif not hasSurvivalInstincts and P4.IsSpellReady(Guardian.Spells.SurvivalInstincts) then
             return Guardian.Spells.SurvivalInstincts
         end
+    end
+
+    if (P4.AuraTracker:UnitHas("player", Guardian.Buffs.Ravage) and hekili==6807) then
+        --P4.log("Ravage")
+        return Guardian.Spells.Ravage
     end
 
     return nil
