@@ -13,7 +13,7 @@ local badDebuffs = {
     [472197] = true,    -- Liberation of Undermine     | One-Armed Bandit      | Withering Flames
     [473713] = true,    -- Floodgate                   | Keeza Quickfuse       | Kinetic Explosive Gel
     [429493] = true,    -- Rookery                     | Monstrosity           | Unstable Corruption
-    [1222232] = true,   -- Devourer's Ire              | The Soul Hunters      | Manaforge Omega
+    [1222232] = true,   -- Manaforge Omega             | The Soul Hunters      | Devourer's Ire
 }
 -- THESE DEBUFFS ARE *TOXIC* TO MY WORKFLOW NIGGA
 -- Hahaha i love this little fella
