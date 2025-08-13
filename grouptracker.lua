@@ -56,9 +56,13 @@ function GT:UpdateMostDamaged()
     local lowestHP = 1.1
 
     for unit, hp in pairs(self.healthData) do
-        if hp < lowestHP and UnitCanAssist("player", unit) and (unit == "player" or UnitInRange(unit)) then
-            lowestHP = hp
-            lowestUnit = unit
+        if UnitClass(unit) == "Priest" and P4.AuraTracker:UnitHas(unit, 27827) then
+            --FUCK PRIESTS            
+        else
+            if hp < lowestHP and UnitCanAssist("player", unit) and (unit == "player" or UnitInRange(unit)) then
+                lowestHP = hp
+                lowestUnit = unit
+            end
         end
     end
 

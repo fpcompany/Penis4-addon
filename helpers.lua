@@ -133,11 +133,53 @@ P4.tankbusters = {
     [1222341] = true, -- Gloom Bite (Trash, Eco-Dome Al'dani)
 }
 
+-- Ultimate Penance guard: prevent suggestions from interrupting it.
+P4._UP_guard_until = P4._UP_guard_until or 0
+
 P4.NeedClip = function(channelSpell)
-    if nil == channelSpell then return true end -- no channeling, can cast
+    -- If a timed guard is active for Ultimate Penance, do not clip.
+    if P4._UP_guard_until and GetTime() < P4._UP_guard_until then
+        return false
+    end
+
+    -- Also avoid clipping if we detect the UP aura or the cast by name.
+    local upInfo = C_Spell.GetSpellInfo(421453)
+    local upName = upInfo and upInfo.name or nil
+    local castName = select(1, UnitCastingInfo("player"))
+    if C_UnitAuras.GetPlayerAuraBySpellID(421453) or (upName and (channelSpell == upName or castName == upName)) then
+        return false
+    end
+
+    -- Whitelist channels that are OK to clip.
+    if channelSpell == nil then return true end -- no channeling, can cast
     if channelSpell == "Lingering Voltage" then return true end -- rik reverb's lingering voltage, can cast
     if channelSpell == "Arcane Missiles" then return true end -- clip this
-    return false -- all other channels
+
+    -- All other channels should not be clipped.
+    return false
+end
+
+-- Minimal event guard for Ultimate Penance to cover API edge cases.
+do
+    local f = CreateFrame("Frame")
+    f:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+    f:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+    f:RegisterEvent("UNIT_SPELLCAST_STOP")
+    f:RegisterEvent("PLAYER_DEAD")
+    f:SetScript("OnEvent", function(_, event, unit, _, spellID)
+        if event == "PLAYER_DEAD" then
+            P4._UP_guard_until = 0
+            return
+        end
+        if unit ~= "player" then return end
+        if event == "UNIT_SPELLCAST_SUCCEEDED" and spellID == 421453 then
+            -- Ultimate Penance duration ~5.5s; guard slightly longer to be safe.
+            P4._UP_guard_until = GetTime() + 5.7
+        elseif (event == "UNIT_SPELLCAST_INTERRUPTED" or event == "UNIT_SPELLCAST_STOP") and (spellID == 421453 or P4._UP_guard_until > 0) then
+            -- Clear early if the cast ends or is interrupted.
+            P4._UP_guard_until = 0
+        end
+    end)
 end
 
 function P4.TankbusterDanger()

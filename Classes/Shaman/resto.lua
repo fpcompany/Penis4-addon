@@ -38,7 +38,7 @@ RSham.Buffs = {
     Skyfury = 462854,           -- Mastery buff & 20% multistrike
 }
 
-RSham.priority = function()
+RSham.priority = function(hekili)
     local healthMax = UnitHealthMax("player")
     local myHealth = healthMax > 0 and 100 * (UnitHealth("player") / healthMax) or 0
     local myMana = 100 * (UnitPower("player", 0) / UnitPowerMax("player", 0))
@@ -58,9 +58,14 @@ RSham.priority = function()
     end
 
     --[[BUFF]]
-    if not P4.AuraTracker:EveryoneHas(RSham.Buffs.Skyfury) then
+    if P4.IsSpellReady(RSham.Spells.Skyfury) and not P4.AuraTracker:EveryoneHas(RSham.Buffs.Skyfury) then
         P4.log("SKUF FURY (someone does not have it)", P4.DEBUG)
         return RSham.Spells.Skyfury
+    end
+
+    local surgingTotemReady = P4.IsSpellReady(RSham.Spells.SurgingTotem)
+    if surgingTotemReady then
+        return RSham.Spells.SurgingTotem
     end
 
     local unit = nil -- THIS UNIT WILL BE FOCUSED
@@ -84,14 +89,14 @@ RSham.priority = function()
     end
 
     -- Keep Earth Shield on the tank. On allies, we use EarthShieldALLY which is the same as Spells.EarthShield
-    local tank = P4.GroupTracker:GetTank()
+    --[[local tank = P4.GroupTracker:GetTank()
     if tank and not P4.AuraTracker:UnitHas(tank, RSham.Buffs.EarthShieldALLY) then
         if not UnitIsUnit("focus", tank) then
             unit = tank -- override unit for ACTION so its gonna get focused instead of mdu/debuffedUnit
         else
             return RSham.Spells.EarthShield
         end
-    end
+    end]]
 
     -- Focusing logic
     local action = P4.GetTarget(unit)
@@ -134,6 +139,7 @@ RSham.priority = function()
     local ancestralReachLearned = IsPlayerSpell(382732)
     local spiritwalkerReady = P4.IsSpellReady(RSham.Spells.Spiritwalker)
 
+
     -- Need to disable Hekili's Spiritwalker's grace recommendation
     if IsPlayerMoving() and spiritwalkerReady then
         return RSham.Spells.Spiritwalker
@@ -148,7 +154,7 @@ RSham.priority = function()
     end
 
     -- CBT Totem
-    if cbtTotemReady and not P4.IsTotemActiveByName(RSham.Spells.CloudburstTotem) then
+    if cbtTotemReady and not P4.IsTotemActive(RSham.Spells.CloudburstTotem) then
         return RSham.Spells.CloudburstTotem
     end
 
