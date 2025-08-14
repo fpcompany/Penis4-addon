@@ -183,8 +183,12 @@ do
 end
 
 function P4.TankbusterDanger()
-    local _, _, _, _, _, _, _, _, targetCastId = UnitCastingInfo("target")
-    return P4.tankbusters[targetCastId] == true
+    local name, _, _, _, _, _, _, _, targetCastId = UnitCastingInfo("target")
+    if P4.tankbusters[targetCastId] then
+        local bossTarget = "targettarget" -- boss's target unit
+        return UnitIsUnit(bossTarget, "player")
+    end
+    return false
 end
 
 -- returns IN_DANGER?, IS_MAGIC?
