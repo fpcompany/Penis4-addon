@@ -104,12 +104,15 @@ Guardian.priority = function(hekili)
     end
     
     if P4.TankbusterDanger() then
-        if not hasBarkskin and P4.IsSpellReady(Guardian.Spells.Barkskin) then
-            return Guardian.Spells.Barkskin
-        elseif not hasRageOfSleeper and P4.IsSpellReady(Guardian.Spells.RageOfTheSleeper) then
-            return Guardian.Spells.RageOfTheSleeper
-        elseif not hasSurvivalInstincts and P4.IsSpellReady(Guardian.Spells.SurvivalInstincts) then
-            return Guardian.Spells.SurvivalInstincts
+    local anyDefUp = hasBarkskin or hasRageOfSleeper or hasSurvivalInstincts
+        if not anyDefUp then
+            if P4.IsSpellReady(Guardian.Spells.Barkskin) then
+                return Guardian.Spells.Barkskin
+            elseif P4.IsSpellReady(Guardian.Spells.RageOfTheSleeper) then
+                return Guardian.Spells.RageOfTheSleeper
+            elseif P4.IsSpellReady(Guardian.Spells.SurvivalInstincts) then
+                return Guardian.Spells.SurvivalInstincts
+            end
         end
     end
 
