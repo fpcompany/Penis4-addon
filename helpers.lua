@@ -131,6 +131,20 @@ P4.tankbusters = {
     [435165] = true, -- Blazing Strike (Trash, Priory)
     [1219482] = true, -- Rift Claws (Taah'bat, Eco-Dome Al'dani)
     [1222341] = true, -- Gloom Bite (Trash, Eco-Dome Al'dani)
+    [1219263] = true, -- Obliteration Arcanecannon (Plexus, Manaforge Omega)
+    [1237212] = true, -- Piercing Strand (Loom'ithar, Manaforge Omega)
+    [1227226] = true, -- Writhing Wave (Loom'ithar, Manaforge Omega)
+    [1228502] = true, -- Overwhelming Power (Araz, Manaforge Omega)
+    [1218103] = true, -- Eye Beam (Soul Hunters, Manaforge Omega)
+    [1225130] = true, -- Felblade (Soul Hunters, Manaforge Omega)
+    [1241833] = true, -- Fracture (Soul Hunters, Manaforge Omega)
+    [1231871] = true, -- Shockwave Slam (Fractillus, Manaforge Omega)
+    [1224812] = true, -- Vanquish (Salhadaar, Manaforge Omega)
+    [1234529] = true, -- Cosmic Maw (Salhadaar, Manaforge Omega)
+    [1226413] = true, -- Starshattered (Salhadaar, Manaforge Omega)
+    [1230168] = true, -- Mortal Fragility (Dimensius, Manaforge Omega)
+    [1246145] = true, -- Touch of Oblivion (Dimensius, Manaforge Omega)
+    [1234266] = true, -- Cosmic Fragility (Dimensius, Manaforge Omega)
 }
 
 -- Ultimate Penance guard: prevent suggestions from interrupting it.
