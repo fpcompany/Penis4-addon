@@ -14,6 +14,9 @@ local badDebuffs = {
     [473713] = true,    -- Floodgate                   | Keeza Quickfuse       | Kinetic Explosive Gel
     [429493] = true,    -- Rookery                     | Monstrosity           | Unstable Corruption
     [1222232] = true,   -- Manaforge Omega             | The Soul Hunters      | Devourer's Ire
+    [1227052] = true,   -- Manaforge Omega             | Soulbinder            | Void Burst
+    [1224977] = true,   -- Manaforge Omega             | Trash                 | Arcing Mana
+    [1228168] = true,   -- Manaforge Omega             | Forgeweaver Araz      | Silencing Tempest
 }
 -- THESE DEBUFFS ARE *TOXIC* TO MY WORKFLOW NIGGA
 -- Hahaha i love this little fella
