@@ -77,7 +77,7 @@ DCP.priority = function ()
 
     --[[HEALING POTION]]
     if myHealth <= 50 then
-        if P4.IsItemReady(211879) or P4.IsItemReady(21880) or P4.IsItemReady(211878) then -- Algari Healing Potion
+        if P4.IsHealingPotionReady() then
             P4.log("HP POTION (<50%)", P4.DEBUG)
             return P4.MacroSystem:GetMacroIDForMacro("HealingPotion")
         end

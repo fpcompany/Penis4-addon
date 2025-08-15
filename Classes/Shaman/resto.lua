@@ -25,6 +25,7 @@ RSham.Spells = {
     Skyfury = 462854,           -- Mastery buff & 20% multistrike
     HealingRain = 73920,        -- hot aoe
     AncestralSwiftness = 443454,-- Next healing spell is instant, free and 10% stronger
+    NatureSwiftness = 378081,   -- Next healing spell is instant and free
 }
 
 RSham.Buffs = {
@@ -39,6 +40,7 @@ RSham.Buffs = {
     LavaSurge = 77762,          -- Free Lava Burst
     Skyfury = 462854,           -- Mastery buff & 20% multistrike
     AncestralSwiftness = 443454,-- Next healing spell is instant, free and 10% stronger
+    NatureSwiftness = 378081,   -- Next healing spell is instant and free
 }
 
 RSham.priority = function(hekili)
@@ -48,7 +50,7 @@ RSham.priority = function(hekili)
 
     --[[HEALING POTION]]
     if myHealth <= 50 then
-        if P4.IsItemReady(211879) or P4.IsItemReady(21880) or P4.IsItemReady(211878) then -- Algari Healing Potion
+        if P4.IsHealingPotionReady() then -- Algari Healing Potion
             P4.log("HP POTION (<50%)", P4.DEBUG)
             return P4.MacroSystem:GetMacroIDForMacro("HealingPotion")
         end
@@ -147,16 +149,15 @@ RSham.priority = function(hekili)
     local ancestralReachLearned = IsPlayerSpell(382732)
     local spiritwalkerReady = P4.IsSpellReady(RSham.Spells.Spiritwalker)
     local ancestralSwiftnessReady = P4.IsSpellReady(RSham.Spells.AncestralSwiftness)
-    local hasAncestralSwiftness = P4.AuraTracker:UnitHas("player", RSham.Buffs.AncestralSwiftness)
-    --local hasNatureSwiftness = P4.AuraTracker:Unitr
+    local natureSwiftnessReady = P4.IsSpellReady(RSham.Spells.NatureSwiftness)
 
-    -- Use Ancestral Swiftness on cooldown
-    if not hasAncestralSwiftness and ancestralSwiftnessReady then
+    -- Use Ancestral / Nature Swiftness on cooldown
+    if ancestralSwiftnessReady then
         return RSham.Spells.AncestralSwiftness
     end
-    --if not hasNatureSwiftness and natureSwiftnessReady then
-    --    return RSham.Spells.NatureSwiftness
-    --end
+    if not ancestralSwiftnessReady and natureSwiftnessReady then
+        return RSham.Spells.NatureSwiftness
+    end
 
 
     -- Need to disable Hekili's Spiritwalker's grace recommendation

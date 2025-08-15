@@ -303,3 +303,7 @@ function P4.HasEnrageEffect(unit)
 
     return false
 end
+
+function P4.IsHealingPotionReady()
+    return P4.IsItemReady(244838) or P4.IsItemReady(244835) or P4.IsItemReady(244839) -- Invigorating Healing Potion, in order from cheap to expensive to optimize execution path (you cheap ass)
+end

@@ -55,7 +55,7 @@ function MacroSystem:InitializeFocusMacros()
 
     -- Mana & Healing Potions
     defineMacro("ManaPotion", "/use Algari Mana Potion")
-    defineMacro("HealingPotion", "/use Algari Healing Potion")
+    defineMacro("HealingPotion", "/use Invigorating Healing Potion")
     defineMacro("Healthstone", "/use Healthstone")
 
     -- Party units

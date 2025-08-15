@@ -7,6 +7,7 @@
 LibDispel\LibDispel.lua
 logger.lua
 helpers.lua
+BossTimers.lua
 character.lua
 combinations.lua
 macrolegacy.lua
